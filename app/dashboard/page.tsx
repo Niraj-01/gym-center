@@ -11,6 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Payment } from '@/lib/types/payment';
 import { getDashboardStats, getRecentPayments, DashboardStats } from '@/lib/services/mock-firestore';
 import { GYM_NAME, PRODUCT_NAME } from '@/lib/config';
+import { supabase } from '@/lib/supabase'; // TEMPORARY TEST
 
 function DashboardContent() {
     const router = useRouter();
@@ -21,6 +22,18 @@ function DashboardContent() {
 
     useEffect(() => {
         loadDashboardData();
+
+        // TEMPORARY: Test Supabase connection
+        const testSupabase = async () => {
+            const { data, error } = await supabase
+                .from("members")
+                .select("*");
+
+            console.log("Supabase data:", data);
+            console.log("Supabase error:", error);
+        };
+
+        testSupabase();
     }, []);
 
     const loadDashboardData = async () => {

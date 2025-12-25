@@ -6,104 +6,11 @@
 import { Member, MemberFormData, getMemberStatus } from '@/lib/types/member';
 import { Plan, PlanFormData } from '@/lib/types/plan';
 
-// Mock data storage (in-memory)
-let mockMembers: Member[] = [
-    {
-        id: 'member-001',
-        name: 'Rajesh Kumar',
-        phone: '+919876543210',
-        email: 'rajesh@example.com',
-        photoUrl: 'https://i.pravatar.cc/150?img=12', // Sample avatar
-        joinDate: new Date('2024-06-15'),
-        planId: 'plan-001',
-        planName: 'Monthly Gym',
-        membershipStartDate: new Date('2025-01-01'),
-        membershipExpiryDate: new Date('2025-02-01'),
-        notes: 'Morning batch preferred',
-        isActive: true,
-        createdAt: new Date('2024-06-15'),
-        updatedAt: new Date('2025-01-01'),
-    },
-    {
-        id: 'member-002',
-        name: 'Priya Sharma',
-        phone: '+919876543211',
-        email: 'priya@example.com',
-        photoUrl: 'https://i.pravatar.cc/150?img=5', // Sample avatar
-        joinDate: new Date('2024-08-01'),
-        planId: 'plan-002',
-        planName: '3-Month Gym',
-        membershipStartDate: new Date('2024-12-01'),
-        membershipExpiryDate: new Date('2025-03-01'),
-        isActive: true,
-        createdAt: new Date('2024-08-01'),
-        updatedAt: new Date('2024-12-01'),
-    },
-    {
-        id: 'member-003',
-        name: 'Amit Patel',
-        phone: '+919876543212',
-        email: 'amit@example.com',
-        // No photoUrl - will show placeholder
-        joinDate: new Date('2024-09-10'),
-        planId: 'plan-001',
-        planName: 'Monthly Gym',
-        membershipStartDate: new Date('2024-12-10'),
-        membershipExpiryDate: new Date('2024-12-31'),
-        notes: 'Renewal due',
-        isActive: false,
-        createdAt: new Date('2024-09-10'),
-        updatedAt: new Date('2024-12-10'),
-    },
-    {
-        id: 'member-004',
-        name: 'Sneha Reddy',
-        phone: '+919876543213',
-        email: 'sneha@example.com',
-        photoUrl: 'https://i.pravatar.cc/150?img=9', // Sample avatar
-        joinDate: new Date('2024-10-05'),
-        planId: 'plan-001',
-        planName: 'Monthly Gym',
-        membershipStartDate: new Date('2024-12-20'),
-        membershipExpiryDate: new Date('2025-01-20'),
-        isActive: true,
-        createdAt: new Date('2024-10-05'),
-        updatedAt: new Date('2024-12-20'),
-    },
-];
+// Mock data storage (in-memory) - REMOVED: Now using Supabase
+let mockMembers: Member[] = [];
 
-let mockPlans: Plan[] = [
-    {
-        id: 'plan-001',
-        name: 'Monthly Gym',
-        duration: 30,
-        price: 1500,
-        description: 'Full gym access for 30 days',
-        isActive: true,
-        createdAt: new Date('2024-01-01'),
-        updatedAt: new Date('2024-01-01'),
-    },
-    {
-        id: 'plan-002',
-        name: '3-Month Gym',
-        duration: 90,
-        price: 4000,
-        description: 'Quarterly plan with discount',
-        isActive: true,
-        createdAt: new Date('2024-01-01'),
-        updatedAt: new Date('2024-01-01'),
-    },
-    {
-        id: 'plan-003',
-        name: '6-Month Gym',
-        duration: 180,
-        price: 7500,
-        description: 'Half-yearly plan with 15% discount',
-        isActive: true,
-        createdAt: new Date('2024-01-01'),
-        updatedAt: new Date('2024-01-01'),
-    },
-];
+
+let mockPlans: Plan[] = [];
 
 // Auto-increment ID counter
 let memberIdCounter = 5;

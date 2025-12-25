@@ -9,8 +9,9 @@ import { useRouter } from 'next/navigation';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { useAuth } from '@/contexts/AuthContext';
 import { Member, MemberStatus, getMemberStatus, getStatusDisplay } from '@/lib/types/member';
-import { getAllMembers, deleteMember } from '@/lib/services/mock-firestore';
+import { deleteMember } from '@/lib/services/mock-firestore'; // Keep delete for now
 import { MemberAvatar } from '@/components/members/MemberAvatar';
+import { supabase } from '@/lib/supabase';
 
 type SortField = 'name' | 'expiry' | 'joinDate';
 type SortOrder = 'asc' | 'desc';
@@ -39,16 +40,60 @@ function MembersListContent() {
 
     // Load members
     useEffect(() => {
-        loadMembers();
+        fetchMembers();
     }, []);
 
-    const loadMembers = async () => {
+    const fetchMembers = async () => {
         try {
             setLoading(true);
-            const data = await getAllMembers();
-            setMembers(data);
+            const { data, error } = await supabase
+                .from("members")
+                .select(`
+                    id,
+                    name,
+                    email,
+                    phone,
+                    photo_url,
+                    join_date,
+                    plan_id,
+                    membership_start_date,
+                    membership_expiry_date,
+                    notes,
+                    is_active,
+                    created_at,
+                    updated_at,
+                    plans (
+                        id,
+                        name,
+                        price,
+                        duration
+                    )
+                `);
+
+            if (error) {
+                console.error('Error fetching members:', error);
+            } else {
+                // Convert snake_case from DB to camelCase and date strings to Date objects
+                const membersWithDates = (data || []).map((member: any) => ({
+                    id: member.id,
+                    name: member.name,
+                    phone: member.phone,
+                    email: member.email,
+                    photoUrl: member.photo_url,
+                    joinDate: new Date(member.join_date),
+                    planId: member.plan_id,
+                    planName: member.plans?.name || 'Unknown Plan', // Get from joined plans table
+                    membershipStartDate: new Date(member.membership_start_date),
+                    membershipExpiryDate: new Date(member.membership_expiry_date),
+                    notes: member.notes,
+                    isActive: member.is_active,
+                    createdAt: new Date(member.created_at),
+                    updatedAt: new Date(member.updated_at),
+                }));
+                setMembers(membersWithDates);
+            }
         } catch (error) {
-            console.error('Error loading members:', error);
+            console.error('Error fetching members:', error);
         } finally {
             setLoading(false);
         }
@@ -124,7 +169,7 @@ function MembersListContent() {
         try {
             setDeletingId(id);
             await deleteMember(id);
-            await loadMembers();
+            await fetchMembers();
         } catch (error) {
             console.error('Error deleting member:', error);
             alert('Failed to delete member');

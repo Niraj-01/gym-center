@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { MemberFormData } from '@/lib/types/member';
 import { Plan } from '@/lib/types/plan';
-import { createMember, getActivePlans } from '@/lib/services/mock-firestore';
+import { supabase } from '@/lib/supabase';
 
 function AddMemberFormContent() {
     const router = useRouter();
@@ -33,10 +33,24 @@ function AddMemberFormContent() {
 
     const loadPlans = async () => {
         try {
-            const data = await getActivePlans();
-            setPlans(data);
-            if (data.length > 0) {
-                setFormData(prev => ({ ...prev, planId: data[0].id }));
+            const { data, error } = await supabase
+                .from("plans")
+                .select("*")
+                .eq("isActive", true);
+
+            if (error) {
+                console.error('Error fetching plans:', error);
+            } else {
+                // Convert date strings to Date objects
+                const plansWithDates = (data || []).map((plan: any) => ({
+                    ...plan,
+                    createdAt: new Date(plan.createdAt),
+                    updatedAt: new Date(plan.updatedAt),
+                }));
+                setPlans(plansWithDates);
+                if (plansWithDates.length > 0) {
+                    setFormData(prev => ({ ...prev, planId: plansWithDates[0].id }));
+                }
             }
         } catch (error) {
             console.error('Error loading plans:', error);
@@ -55,7 +69,42 @@ function AddMemberFormContent() {
 
         try {
             setSubmitting(true);
-            await createMember(formData);
+
+            // Get selected plan details
+            const plan = plans.find(p => p.id === formData.planId);
+            if (!plan) {
+                alert('Selected plan not found');
+                return;
+            }
+
+            // Calculate expiry date
+            const expiryDate = new Date(formData.membershipStartDate);
+            expiryDate.setDate(expiryDate.getDate() + plan.duration);
+
+            // Insert into Supabase
+            const { error } = await supabase
+                .from("members")
+                .insert({
+                    name: formData.name,
+                    email: formData.email || null,
+                    phone: formData.phone,
+                    plan_id: formData.planId,
+                    membership_start_date: formData.membershipStartDate.toISOString(),
+                    membership_expiry_date: expiryDate.toISOString(),
+                    join_date: formData.joinDate.toISOString(),
+                    photo_url: formData.photoUrl || null,
+                    notes: formData.notes || null,
+                    is_active: true,
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString(),
+                });
+
+            if (error) {
+                console.error('Supabase error:', error);
+                alert('Failed to create member: ' + error.message);
+                return;
+            }
+
             router.push('/members');
         } catch (error) {
             console.error('Error creating member:', error);
