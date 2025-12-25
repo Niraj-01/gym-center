@@ -3,13 +3,14 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --accent: #2563eb;
+  /* Blue accent for primary actions */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-accent: var(--accent);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,5 +23,43 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Product Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 400;
+  /* Regular for body text */
+}
+
+/* Headings use Bold */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 700;
+}
+
+/* Buttons use Medium */
+button {
+  font-weight: 500;
+}
+
+/* Button baseline styles - proper buttons, NOT links */
+button:not([class*="text-"]):not([class*="hover:underline"]) {
+  background-color: var(--background);
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  transition: all 0.15s ease;
+}
+
+/* Primary action buttons */
+button.bg-black,
+button.bg-accent {
+  font-weight: 500;
+  border-radius: 6px;
+}
+
+/* Make sure links look like links, buttons look like buttons */
+a:not([class*="button"]) {
+  text-decoration: none;
+  color: inherit;
 }

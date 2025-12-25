@@ -10,6 +10,7 @@ import { AuthGuard } from '@/components/auth/AuthGuard';
 import { useAuth } from '@/contexts/AuthContext';
 import { Payment } from '@/lib/types/payment';
 import { getDashboardStats, getRecentPayments, DashboardStats } from '@/lib/services/mock-firestore';
+import { GYM_NAME, PRODUCT_NAME } from '@/lib/config';
 
 function DashboardContent() {
     const router = useRouter();
@@ -64,21 +65,21 @@ function DashboardContent() {
             <header className="bg-white border-b border-gray-200">
                 <div className="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-semibold text-black">GymCentre</h1>
-                        <p className="text-sm text-gray-500 mt-1">Dashboard</p>
+                        <h1 className="text-2xl font-bold text-black">{GYM_NAME}</h1>
+                        <p className="text-sm text-gray-500 mt-1">{PRODUCT_NAME} Dashboard</p>
                     </div>
 
                     <div className="flex items-center gap-6">
                         {/* Navigation */}
                         <button
                             onClick={() => router.push('/members')}
-                            className="px-4 py-2 text-sm text-gray-700 hover:text-black transition-colors"
+                            className="px-4 py-2 text-sm text-gray-700 hover:text-black hover:bg-gray-100 rounded-md transition-colors"
                         >
                             Members
                         </button>
                         <button
                             onClick={() => router.push('/plans')}
-                            className="px-4 py-2 text-sm text-gray-700 hover:text-black transition-colors"
+                            className="px-4 py-2 text-sm text-gray-700 hover:text-black hover:bg-gray-100 rounded-md transition-colors"
                         >
                             Plans
                         </button>
@@ -92,7 +93,7 @@ function DashboardContent() {
                         {/* Sign Out */}
                         <button
                             onClick={() => signOut()}
-                            className="px-6 py-2 border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                            className="px-6 py-2 border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
                         >
                             Sign Out
                         </button>
@@ -238,19 +239,19 @@ function DashboardContent() {
                             <div className="flex items-center gap-4">
                                 <button
                                     onClick={() => router.push('/members/add')}
-                                    className="px-6 py-3 bg-black text-white hover:bg-gray-800 transition-colors font-medium"
+                                    className="px-6 py-3 bg-blue-600 text-white hover:bg-blue-700 rounded-md transition-colors font-medium"
                                 >
                                     Add New Member
                                 </button>
                                 <button
                                     onClick={() => router.push('/members')}
-                                    className="px-6 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors font-medium"
+                                    className="px-6 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-md transition-colors font-medium"
                                 >
                                     View All Members
                                 </button>
                                 <button
                                     onClick={() => router.push('/plans')}
-                                    className="px-6 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors font-medium"
+                                    className="px-6 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-md transition-colors font-medium"
                                 >
                                     Manage Plans
                                 </button>

@@ -3,19 +3,16 @@
  */
 
 export interface Member {
-    id: string;                    // Firestore document ID
+    id: string;
     name: string;
+    email: string;  // Added for member authentication and lookup
     phone: string;
-    email?: string;
-    photoUrl?: string;             // Optional profile photo URL
-    joinDate: Date;
-
-    // Current membership
     planId: string;
     planName: string;
     membershipStartDate: Date;
     membershipExpiryDate: Date;
-
+    joinDate: Date;
+    photoUrl?: string;  // Optional profile photo URL
     // Additional
     notes?: string;
     isActive: boolean;
@@ -27,12 +24,12 @@ export interface Member {
 
 export interface MemberFormData {
     name: string;
+    email: string;  // Added for member authentication
     phone: string;
-    email?: string;
-    photoUrl?: string;             // Optional profile photo URL
-    joinDate: Date;
     planId: string;
     membershipStartDate: Date;
+    photoUrl?: string;
+    joinDate: Date;
     notes?: string;
 }
 

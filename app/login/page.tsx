@@ -8,6 +8,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { GYM_NAME, PRODUCT_NAME } from '@/lib/config';
 
 export default function LoginPage() {
     const { user, loading, isAdmin, signInWithGoogle } = useAuth();
@@ -51,15 +52,15 @@ export default function LoginPage() {
             <div className="w-full max-w-md p-12 bg-white border border-gray-200">
                 {/* Header */}
                 <div className="mb-12">
-                    <h1 className="text-3xl font-semibold text-black mb-2">GymCentre</h1>
-                    <p className="text-base text-gray-600">Admin Portal</p>
+                    <h1 className="text-3xl font-bold text-black mb-2">{PRODUCT_NAME}</h1>
+                    <p className="text-base text-gray-600">Admin Portal for {GYM_NAME}</p>
                 </div>
 
                 {/* Sign In Button */}
                 <button
                     onClick={handleSignIn}
                     disabled={isSigningIn}
-                    className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-black text-white hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-blue-600 text-white hover:bg-blue-700 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     {/* Google Icon */}
                     <svg className="w-5 h-5" viewBox="0 0 24 24">

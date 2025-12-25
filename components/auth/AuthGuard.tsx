@@ -1,37 +1,33 @@
 'use client';
 
 /**
- * Auth Guard - Protects routes from unauthorized access
- * Redirects to login if not authenticated or not admin
+ * AuthGuard - Protects admin-only routes
+ * Redirects members to /me, unknown users to /access-denied
  */
 
-import { useEffect } from 'react';
+import { useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 
-interface AuthGuardProps {
-    children: React.ReactNode;
-}
-
-export function AuthGuard({ children }: AuthGuardProps) {
-    const { user, loading, isAdmin } = useAuth();
+export function AuthGuard({ children }: { children: ReactNode }) {
+    const { user, loading, isAdmin, isMember } = useAuth();
     const router = useRouter();
 
     useEffect(() => {
         if (!loading) {
-            // Not authenticated - redirect to login
             if (!user) {
+                // Not authenticated - go to login
                 router.push('/login');
-                return;
-            }
-
-            // Authenticated but not admin - show access denied
-            if (!isAdmin) {
+            } else if (isMember && !isAdmin) {
+                // Is a member but not admin - redirect to member dashboard
+                router.push('/me');
+            } else if (!isAdmin && !isMember) {
+                // Unknown user - access denied
                 router.push('/access-denied');
-                return;
             }
+            // If isAdmin, allow access (do nothing)
         }
-    }, [user, loading, isAdmin, router]);
+    }, [user, loading, isAdmin, isMember, router]);
 
     // Show loading state
     if (loading) {
@@ -45,11 +41,11 @@ export function AuthGuard({ children }: AuthGuardProps) {
         );
     }
 
-    // Not authenticated or not admin - don't render protected content
+    // If no user or not admin, show nothing (will redirect)
     if (!user || !isAdmin) {
         return null;
     }
 
-    // User is authenticated and is admin - render protected content
+    // Render children if authenticated AND is admin
     return <>{children}</>;
 }

@@ -43,6 +43,7 @@ let mockMembers: Member[] = [
         id: 'member-003',
         name: 'Amit Patel',
         phone: '+919876543212',
+        email: 'amit@example.com',
         // No photoUrl - will show placeholder
         joinDate: new Date('2024-09-10'),
         planId: 'plan-001',
@@ -207,6 +208,14 @@ export async function updateMember(id: string, data: Partial<MemberFormData>): P
 export async function deleteMember(id: string): Promise<void> {
     await new Promise(resolve => setTimeout(resolve, 300));
     mockMembers = mockMembers.filter(m => m.id !== id);
+}
+
+/**
+ * Get member by email (for member authentication)
+ */
+export async function getMemberByEmail(email: string): Promise<Member | null> {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    return mockMembers.find(m => m.email === email) || null;
 }
 
 /**
