@@ -38,19 +38,16 @@ function MemberProfileContent() {
                     email,
                     phone,
                     photo_url,
-                    join_date,
+                    start_date,
                     plan_id,
-                    membership_start_date,
-                    membership_expiry_date,
+                    expiry_date,
                     notes,
-                    is_active,
                     created_at,
-                    updated_at,
                     plans (
                         id,
                         name,
                         price,
-                        duration
+                        duration_days
                     )
                 `)
                 .eq('id', memberId)
@@ -69,15 +66,15 @@ function MemberProfileContent() {
                 phone: data.phone,
                 email: data.email,
                 photoUrl: data.photo_url,
-                joinDate: new Date(data.join_date),
+                joinDate: new Date(data.start_date), // Using start_date as joinDate
                 planId: data.plan_id,
                 planName: (data.plans as any)?.name || 'Unknown Plan',
-                membershipStartDate: new Date(data.membership_start_date),
-                membershipExpiryDate: new Date(data.membership_expiry_date),
+                membershipStartDate: new Date(data.start_date),
+                membershipExpiryDate: new Date(data.expiry_date),
                 notes: data.notes,
-                isActive: data.is_active,
+                isActive: true, // Default value (column doesn't exist in DB)
                 createdAt: new Date(data.created_at),
-                updatedAt: new Date(data.updated_at),
+                updatedAt: new Date(data.created_at), // Using created_at (updated_at doesn't exist)
             };
 
             setMember(memberData);

@@ -44,7 +44,7 @@ function DashboardContent() {
             const { data: membersData, error: membersError } = await supabase
                 .from('members')
                 .select(`
-                    id, membership_expiry_date
+                    id, expiry_date
                 `);
 
             // Fetch all payments from Supabase
@@ -57,6 +57,8 @@ function DashboardContent() {
                 throw membersError || paymentsError;
             }
 
+            console.log('✅ Fetched members for dashboard:', membersData?.length);
+
             // Calculate member stats
             const now = new Date();
             const thisMonth = now.getMonth();
@@ -64,7 +66,7 @@ function DashboardContent() {
 
             const memberStats = (membersData || []).reduce(
                 (acc, member: any) => {
-                    const status = getMemberStatus(new Date(member.membership_expiry_date));
+                    const status = getMemberStatus(new Date(member.expiry_date));
                     if (status === 'active') acc.active++;
                     else if (status === 'due-soon') acc.dueSoon++;
                     else acc.expired++;
@@ -81,7 +83,7 @@ function DashboardContent() {
                 memberPhone: p.member_phone,
                 amount: p.amount,
                 paymentDate: new Date(p.payment_date),
-                paymentMode: p.payment_mode,
+                paymentMode: p.mode,
                 planId: p.plan_id,
                 planName: p.plan_name,
                 durationDays: p.duration_days,

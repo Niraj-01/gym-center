@@ -36,10 +36,9 @@ function MemberDashboardContent() {
             const { data, error } = await supabase
                 .from('members')
                 .select(`
-                    id, name, email, phone, photo_url, join_date, plan_id,
-                    membership_start_date, membership_expiry_date, notes,
-                    is_active, created_at, updated_at,
-                    plans (id, name, price, duration)
+                    id, name, email, phone, photo_url, start_date, plan_id,
+                    expiry_date, notes, created_at,
+                    plans (id, name, price, duration_days)
                 `)
                 .eq('email', email)
                 .single();
@@ -57,15 +56,15 @@ function MemberDashboardContent() {
                 phone: data.phone,
                 email: data.email,
                 photoUrl: data.photo_url,
-                joinDate: new Date(data.join_date),
+                joinDate: new Date(data.start_date), // Using start_date as joinDate
                 planId: data.plan_id,
                 planName: (data.plans as any)?.name || 'Unknown',
-                membershipStartDate: new Date(data.membership_start_date),
-                membershipExpiryDate: new Date(data.membership_expiry_date),
+                membershipStartDate: new Date(data.start_date),
+                membershipExpiryDate: new Date(data.expiry_date),
                 notes: data.notes,
-                isActive: data.is_active,
+                isActive: true, // Default value (column doesn't exist in DB)
                 createdAt: new Date(data.created_at),
-                updatedAt: new Date(data.updated_at),
+                updatedAt: new Date(data.created_at), // Using created_at (updated_at doesn't exist)
             };
 
             setMember(memberData);
