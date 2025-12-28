@@ -51,7 +51,12 @@ export default function LoginPage() {
         <div className="flex items-center justify-center min-h-screen bg-white">
             <div className="w-full max-w-md p-12 bg-white border border-gray-200">
                 {/* Header */}
-                <div className="mb-12">
+                <div className="mb-12 text-center">
+                    <img
+                        src="/logo.png"
+                        alt="GymCentre"
+                        className="h-12 mx-auto mb-6"
+                    />
                     <h1 className="text-3xl font-bold text-black mb-2">{PRODUCT_NAME}</h1>
                     <p className="text-base text-gray-600">Admin Portal for {GYM_NAME}</p>
                 </div>

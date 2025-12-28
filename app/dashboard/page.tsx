@@ -149,10 +149,17 @@ function DashboardContent() {
             {/* Header */}
             <header className="bg-white border-b border-gray-200">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
-                    {/* Title */}
-                    <div className="mb-4 sm:mb-0">
-                        <h1 className="text-xl sm:text-2xl font-bold text-black">{GYM_NAME}</h1>
-                        <p className="text-sm text-gray-500 mt-1">{PRODUCT_NAME} Dashboard</p>
+                    {/* Logo and Title */}
+                    <div className="mb-4 sm:mb-0 flex items-center gap-3">
+                        <img
+                            src="/logo.png"
+                            alt="GymCentre"
+                            className="h-6 sm:h-8"
+                        />
+                        <div>
+                            <h1 className="text-xl sm:text-2xl font-bold text-black">{GYM_NAME}</h1>
+                            <p className="text-sm text-gray-500 mt-1">{PRODUCT_NAME} Dashboard</p>
+                        </div>
                     </div>
 
                     {/* Navigation and User Controls */}
