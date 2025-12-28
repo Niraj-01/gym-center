@@ -141,3 +141,4 @@ Returns test results for all Supabase tables.
 ```bash
 cd gym-centre && npm run dev  # http://localhost:3000
 ```
+# Check if you actually have API routes
