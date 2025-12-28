@@ -9,7 +9,8 @@ import { useRouter } from 'next/navigation';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { MemberFormData } from '@/lib/types/member';
 import { Plan } from '@/lib/types/plan';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
+const supabase = createClient();
 
 function AddMemberFormContent() {
     const router = useRouter();
@@ -36,16 +37,23 @@ function AddMemberFormContent() {
             const { data, error } = await supabase
                 .from("plans")
                 .select("*")
-                .eq("isActive", true);
+                .eq("is_active", true);
 
             if (error) {
-                console.error('Error fetching plans:', error);
+                console.error('❌ Error fetching plans:', error);
+                alert(`Failed to load plans: ${error.message}`);
             } else {
-                // Convert date strings to Date objects
+                console.log('✅ Loaded plans:', data?.length);
+                // Convert to frontend format - use duration_days from DB
                 const plansWithDates = (data || []).map((plan: any) => ({
-                    ...plan,
-                    createdAt: new Date(plan.createdAt),
-                    updatedAt: new Date(plan.updatedAt),
+                    id: plan.id,
+                    name: plan.name,
+                    duration: plan.duration_days, // Map duration_days to duration
+                    price: plan.price,
+                    description: plan.description,
+                    isActive: plan.is_active,
+                    createdAt: plan.created_at ? new Date(plan.created_at) : new Date(),
+                    updatedAt: plan.created_at ? new Date(plan.created_at) : new Date(),
                 }));
                 setPlans(plansWithDates);
                 if (plansWithDates.length > 0) {
@@ -53,7 +61,8 @@ function AddMemberFormContent() {
                 }
             }
         } catch (error) {
-            console.error('Error loading plans:', error);
+            console.error('❌ Error loading plans:', error);
+            alert('Failed to load plans');
         } finally {
             setLoading(false);
         }
@@ -77,11 +86,19 @@ function AddMemberFormContent() {
                 return;
             }
 
-            // Calculate expiry date
-            const expiryDate = new Date(formData.membershipStartDate);
+            // Calculate expiry date based on plan duration
+            const startDate = formData.membershipStartDate;
+            const expiryDate = new Date(startDate);
             expiryDate.setDate(expiryDate.getDate() + plan.duration);
 
-            // Insert into Supabase
+            console.log('📝 Creating member:', {
+                name: formData.name,
+                start_date: startDate.toISOString().split('T')[0],
+                expiry_date: expiryDate.toISOString().split('T')[0],
+                plan_duration: plan.duration
+            });
+
+            // Insert into Supabase using CORRECT column names
             const { error } = await supabase
                 .from("members")
                 .insert({
@@ -89,14 +106,9 @@ function AddMemberFormContent() {
                     email: formData.email || null,
                     phone: formData.phone,
                     plan_id: formData.planId,
-                    membership_start_date: formData.membershipStartDate.toISOString(),
-                    membership_expiry_date: expiryDate.toISOString(),
-                    join_date: formData.joinDate.toISOString(),
+                    start_date: startDate.toISOString().split('T')[0], // YYYY-MM-DD format
+                    expiry_date: expiryDate.toISOString().split('T')[0], // YYYY-MM-DD format
                     photo_url: formData.photoUrl || null,
-                    notes: formData.notes || null,
-                    is_active: true,
-                    created_at: new Date().toISOString(),
-                    updated_at: new Date().toISOString(),
                 });
 
             if (error) {
@@ -108,7 +120,11 @@ function AddMemberFormContent() {
             router.push('/members');
         } catch (error) {
             console.error('Error creating member:', error);
-            alert('Failed to create member');
+            // Surface actual Supabase error to user
+            const errorMessage = error instanceof Error
+                ? error.message
+                : 'Unknown error occurred';
+            alert(`Failed to create member: ${errorMessage}`);
         } finally {
             setSubmitting(false);
         }

@@ -9,7 +9,9 @@ import { useRouter, useParams } from 'next/navigation';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { Member, getMemberStatus, getStatusDisplay } from '@/lib/types/member';
 import { Payment } from '@/lib/types/payment';
-import { getMemberById, getPaymentsByMember } from '@/lib/services/mock-firestore';
+import { createClient } from '@/lib/supabase/client';
+const supabase = createClient();
+
 
 function PaymentHistoryContent() {
     const router = useRouter();
@@ -27,16 +29,71 @@ function PaymentHistoryContent() {
     const loadData = async () => {
         try {
             setLoading(true);
-            const [memberData, paymentsData] = await Promise.all([
-                getMemberById(memberId),
-                getPaymentsByMember(memberId),
-            ]);
 
-            if (!memberData) {
+            // Fetch member from Supabase - using CORRECT column names
+            const { data: memberResult, error: memberError } = await supabase
+                .from('members')
+                .select(`
+                    id, name, email, phone, photo_url, plan_id,
+                    start_date, expiry_date, created_at,
+                    plans (id, name, price, duration_days)
+                `)
+                .eq('id', memberId)
+                .single();
+
+            // Fetch payments from Supabase
+            const { data: paymentsResult, error: paymentsError } = await supabase
+                .from('payments')
+                .select('*')
+                .eq('member_id', memberId)
+                .order('payment_date', { ascending: false });
+
+            if (memberError || !memberResult) {
+                console.error('❌ Error loading member:', memberError);
                 alert('Member not found');
                 router.push('/members');
                 return;
             }
+
+            console.log('✅ Loaded member:', memberResult.name, 'payments:', paymentsResult?.length);
+
+            // Convert member from snake_case to camelCase - CORRECT column names
+            const memberData: Member = {
+                id: memberResult.id,
+                name: memberResult.name,
+                phone: memberResult.phone,
+                email: memberResult.email,
+                photoUrl: memberResult.photo_url,
+                joinDate: memberResult.start_date ? new Date(memberResult.start_date) : new Date(),
+                planId: memberResult.plan_id,
+                planName: (memberResult.plans as any)?.name || 'Unknown',
+                membershipStartDate: memberResult.start_date ? new Date(memberResult.start_date) : new Date(),
+                membershipExpiryDate: memberResult.expiry_date ? new Date(memberResult.expiry_date) : new Date(),
+                notes: '',
+                isActive: true,
+                createdAt: memberResult.created_at ? new Date(memberResult.created_at) : new Date(),
+                updatedAt: memberResult.created_at ? new Date(memberResult.created_at) : new Date(),
+            };
+
+            // Convert payments from snake_case to camelCase - CORRECT column names
+            const paymentsData: Payment[] = (paymentsResult || []).map((p: any) => ({
+                id: p.id,
+                memberId: p.member_id,
+                memberName: p.member_name || memberData.name,
+                memberPhone: p.member_phone || memberData.phone,
+                amount: p.amount,
+                paymentDate: p.payment_date ? new Date(p.payment_date) : new Date(),
+                paymentMode: p.mode, // CORRECT: use 'mode' not 'payment_mode'
+                planId: p.plan_id,
+                planName: p.plan_name || memberData.planName,
+                durationDays: p.duration_days || 0,
+                previousExpiryDate: p.previous_expiry_date ? new Date(p.previous_expiry_date) : new Date(),
+                newExpiryDate: p.new_expiry_date ? new Date(p.new_expiry_date) : new Date(),
+                notes: p.notes || '',
+                receiptNumber: p.receipt_number || '',
+                createdAt: p.created_at ? new Date(p.created_at) : new Date(),
+                createdBy: p.created_by || '',
+            }));
 
             setMember(memberData);
             setPayments(paymentsData);

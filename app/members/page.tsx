@@ -9,9 +9,10 @@ import { useRouter } from 'next/navigation';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { useAuth } from '@/contexts/AuthContext';
 import { Member, MemberStatus, getMemberStatus, getStatusDisplay } from '@/lib/types/member';
-import { deleteMember } from '@/lib/services/mock-firestore'; // Keep delete for now
 import { MemberAvatar } from '@/components/members/MemberAvatar';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
+const supabase = createClient();
+
 
 type SortField = 'name' | 'expiry' | 'joinDate';
 type SortOrder = 'asc' | 'desc';
@@ -54,25 +55,23 @@ function MembersListContent() {
                     email,
                     phone,
                     photo_url,
-                    join_date,
+                    start_date,
+                    expiry_date,
                     plan_id,
-                    membership_start_date,
-                    membership_expiry_date,
-                    notes,
-                    is_active,
                     created_at,
-                    updated_at,
                     plans (
                         id,
                         name,
                         price,
-                        duration
+                        duration_days
                     )
                 `);
 
             if (error) {
-                console.error('Error fetching members:', error);
+                console.error('❌ Error fetching members:', error);
+                alert(`Database error: ${error.message}`);
             } else {
+                console.log('✅ Fetched members:', data?.length);
                 // Convert snake_case from DB to camelCase and date strings to Date objects
                 const membersWithDates = (data || []).map((member: any) => ({
                     id: member.id,
@@ -80,20 +79,21 @@ function MembersListContent() {
                     phone: member.phone,
                     email: member.email,
                     photoUrl: member.photo_url,
-                    joinDate: new Date(member.join_date),
+                    joinDate: member.start_date ? new Date(member.start_date) : new Date(),
                     planId: member.plan_id,
-                    planName: member.plans?.name || 'Unknown Plan', // Get from joined plans table
-                    membershipStartDate: new Date(member.membership_start_date),
-                    membershipExpiryDate: new Date(member.membership_expiry_date),
-                    notes: member.notes,
-                    isActive: member.is_active,
-                    createdAt: new Date(member.created_at),
-                    updatedAt: new Date(member.updated_at),
+                    planName: member.plans?.name || 'Unknown Plan',
+                    membershipStartDate: member.start_date ? new Date(member.start_date) : new Date(),
+                    membershipExpiryDate: member.expiry_date ? new Date(member.expiry_date) : new Date(),
+                    notes: '',
+                    isActive: true,
+                    createdAt: member.created_at ? new Date(member.created_at) : new Date(),
+                    updatedAt: member.created_at ? new Date(member.created_at) : new Date(),
                 }));
                 setMembers(membersWithDates);
             }
         } catch (error) {
-            console.error('Error fetching members:', error);
+            console.error('❌ Error fetching members:', error);
+            alert('Failed to load members');
         } finally {
             setLoading(false);
         }
@@ -168,7 +168,17 @@ function MembersListContent() {
 
         try {
             setDeletingId(id);
-            await deleteMember(id);
+
+            // Delete from Supabase
+            const { error } = await supabase
+                .from('members')
+                .delete()
+                .eq('id', id);
+
+            if (error) {
+                throw error;
+            }
+
             await fetchMembers();
         } catch (error) {
             console.error('Error deleting member:', error);

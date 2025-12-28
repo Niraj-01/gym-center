@@ -8,7 +8,9 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { Plan, PlanFormData } from '@/lib/types/plan';
-import { getPlanById, updatePlan, getMemberCountByPlan } from '@/lib/services/mock-firestore';
+import { createClient } from '@/lib/supabase/client';
+const supabase = createClient();
+
 
 function EditPlanFormContent() {
     const router = useRouter();
@@ -29,19 +31,40 @@ function EditPlanFormContent() {
     const loadData = async () => {
         try {
             setLoading(true);
-            const [planData, count] = await Promise.all([
-                getPlanById(planId),
-                getMemberCountByPlan(planId),
-            ]);
 
-            if (!planData) {
+            // Fetch plan from Supabase
+            const { data: planResult, error: planError } = await supabase
+                .from('plans')
+                .select('*')
+                .eq('id', planId)
+                .single();
+
+            // Get member count for this plan
+            const { count, error: countError } = await supabase
+                .from('members')
+                .select('id', { count: 'exact', head: true })
+                .eq('plan_id', planId);
+
+            if (planError || !planResult) {
                 alert('Plan not found');
                 router.push('/plans');
                 return;
             }
 
+            // Convert from snake_case to camelCase
+            const planData: Plan = {
+                id: planResult.id,
+                name: planResult.name,
+                duration: planResult.duration,
+                price: planResult.price,
+                description: planResult.description,
+                isActive: planResult.is_active,
+                createdAt: new Date(planResult.created_at),
+                updatedAt: new Date(planResult.updated_at),
+            };
+
             setPlan(planData);
-            setMemberCount(count);
+            setMemberCount(count || 0);
 
             setFormData({
                 name: planData.name,
@@ -82,11 +105,30 @@ function EditPlanFormContent() {
 
         try {
             setSubmitting(true);
-            await updatePlan(planId, formData);
+
+            // Update plan in Supabase
+            const { error } = await supabase
+                .from('plans')
+                .update({
+                    name: formData.name,
+                    duration: formData.duration,
+                    price: formData.price,
+                    description: formData.description || null,
+                    updated_at: new Date().toISOString(),
+                })
+                .eq('id', planId);
+
+            if (error) {
+                throw error;
+            }
+
             router.push('/plans');
         } catch (error) {
             console.error('Error updating plan:', error);
-            alert('Failed to update plan');
+            const errorMessage = error instanceof Error
+                ? error.message
+                : 'Unknown error occurred';
+            alert(`Failed to update plan: ${errorMessage}`);
         } finally {
             setSubmitting(false);
         }

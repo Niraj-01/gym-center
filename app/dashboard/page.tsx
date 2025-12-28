@@ -9,9 +9,21 @@ import { useRouter } from 'next/navigation';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { useAuth } from '@/contexts/AuthContext';
 import { Payment } from '@/lib/types/payment';
-import { getDashboardStats, getRecentPayments, DashboardStats } from '@/lib/services/mock-firestore';
+import { getMemberStatus } from '@/lib/types/member';
 import { GYM_NAME, PRODUCT_NAME } from '@/lib/config';
-import { supabase } from '@/lib/supabase'; // TEMPORARY TEST
+import { createClient } from '@/lib/supabase/client';
+const supabase = createClient();
+
+
+// Local interface for dashboard stats (previously from mock-firestore)
+interface DashboardStats {
+    totalMembers: number;
+    activeMembers: number;
+    dueSoonMembers: number;
+    expiredMembers: number;
+    thisMonthRevenue: number;
+    totalRevenue: number;
+}
 
 function DashboardContent() {
     const router = useRouter();
@@ -22,29 +34,87 @@ function DashboardContent() {
 
     useEffect(() => {
         loadDashboardData();
-
-        // TEMPORARY: Test Supabase connection
-        const testSupabase = async () => {
-            const { data, error } = await supabase
-                .from("members")
-                .select("*");
-
-            console.log("Supabase data:", data);
-            console.log("Supabase error:", error);
-        };
-
-        testSupabase();
     }, []);
 
     const loadDashboardData = async () => {
         try {
             setLoading(true);
-            const [statsData, paymentsData] = await Promise.all([
-                getDashboardStats(),
-                getRecentPayments(10),
-            ]);
+
+            // Fetch all members with plans from Supabase
+            const { data: membersData, error: membersError } = await supabase
+                .from('members')
+                .select(`
+                    id, membership_expiry_date
+                `);
+
+            // Fetch all payments from Supabase
+            const { data: paymentsData, error: paymentsError } = await supabase
+                .from('payments')
+                .select('*')
+                .order('payment_date', { ascending: false });
+
+            if (membersError || paymentsError) {
+                throw membersError || paymentsError;
+            }
+
+            // Calculate member stats
+            const now = new Date();
+            const thisMonth = now.getMonth();
+            const thisYear = now.getFullYear();
+
+            const memberStats = (membersData || []).reduce(
+                (acc, member: any) => {
+                    const status = getMemberStatus(new Date(member.membership_expiry_date));
+                    if (status === 'active') acc.active++;
+                    else if (status === 'due-soon') acc.dueSoon++;
+                    else acc.expired++;
+                    return acc;
+                },
+                { active: 0, dueSoon: 0, expired: 0 }
+            );
+
+            // Convert payments from snake_case to camelCase
+            const payments: Payment[] = (paymentsData || []).map((p: any) => ({
+                id: p.id,
+                memberId: p.member_id,
+                memberName: p.member_name,
+                memberPhone: p.member_phone,
+                amount: p.amount,
+                paymentDate: new Date(p.payment_date),
+                paymentMode: p.payment_mode,
+                planId: p.plan_id,
+                planName: p.plan_name,
+                durationDays: p.duration_days,
+                previousExpiryDate: new Date(p.previous_expiry_date),
+                newExpiryDate: new Date(p.new_expiry_date),
+                notes: p.notes,
+                receiptNumber: p.receipt_number,
+                createdAt: new Date(p.created_at),
+                createdBy: p.created_by,
+            }));
+
+            // Calculate revenue
+            const thisMonthRevenue = payments
+                .filter(p => {
+                    const date = p.paymentDate;
+                    return date.getMonth() === thisMonth && date.getFullYear() === thisYear;
+                })
+                .reduce((sum, p) => sum + p.amount, 0);
+
+            const totalRevenue = payments.reduce((sum, p) => sum + p.amount, 0);
+
+            // Set stats
+            const statsData: DashboardStats = {
+                totalMembers: (membersData || []).length,
+                activeMembers: memberStats.active,
+                dueSoonMembers: memberStats.dueSoon,
+                expiredMembers: memberStats.expired,
+                thisMonthRevenue,
+                totalRevenue,
+            };
+
             setStats(statsData);
-            setRecentPayments(paymentsData);
+            setRecentPayments(payments.slice(0, 10)); // Top 10 recent payments
         } catch (error) {
             console.error('Error loading dashboard:', error);
         } finally {

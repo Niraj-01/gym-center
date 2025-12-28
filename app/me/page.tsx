@@ -10,9 +10,11 @@ import { useRouter } from 'next/navigation';
 import { MemberGuard } from '@/components/auth/MemberGuard';
 import { useAuth } from '@/contexts/AuthContext';
 import { Member, getMemberStatus, getStatusDisplay } from '@/lib/types/member';
-import { getMemberByEmail } from '@/lib/services/mock-firestore';
 import { GYM_NAME, PRODUCT_NAME } from '@/lib/config';
 import { MemberAvatar } from '@/components/members/MemberAvatar';
+import { createClient } from '@/lib/supabase/client';
+const supabase = createClient();
+
 
 function MemberDashboardContent() {
     const router = useRouter();
@@ -29,10 +31,47 @@ function MemberDashboardContent() {
     const loadMemberData = async (email: string) => {
         try {
             setLoading(true);
-            const data = await getMemberByEmail(email);
-            setMember(data);
+
+            // Fetch member from Supabase by email
+            const { data, error } = await supabase
+                .from('members')
+                .select(`
+                    id, name, email, phone, photo_url, join_date, plan_id,
+                    membership_start_date, membership_expiry_date, notes,
+                    is_active, created_at, updated_at,
+                    plans (id, name, price, duration)
+                `)
+                .eq('email', email)
+                .single();
+
+            if (error || !data) {
+                console.error('Error loading member data:', error);
+                setMember(null);
+                return;
+            }
+
+            // Convert from snake_case to camelCase
+            const memberData: Member = {
+                id: data.id,
+                name: data.name,
+                phone: data.phone,
+                email: data.email,
+                photoUrl: data.photo_url,
+                joinDate: new Date(data.join_date),
+                planId: data.plan_id,
+                planName: (data.plans as any)?.name || 'Unknown',
+                membershipStartDate: new Date(data.membership_start_date),
+                membershipExpiryDate: new Date(data.membership_expiry_date),
+                notes: data.notes,
+                isActive: data.is_active,
+                createdAt: new Date(data.created_at),
+                updatedAt: new Date(data.updated_at),
+            };
+
+            setMember(memberData);
         } catch (error) {
             console.error('Error loading member data:', error);
+            setMember(null);
         } finally {
             setLoading(false);
         }

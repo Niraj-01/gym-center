@@ -9,7 +9,9 @@ import { useRouter } from 'next/navigation';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { useAuth } from '@/contexts/AuthContext';
 import { Plan } from '@/lib/types/plan';
-import { getAllPlans, togglePlanStatus, getMemberCountByPlan } from '@/lib/services/mock-firestore';
+import { createClient } from '@/lib/supabase/client';
+const supabase = createClient();
+
 
 function PlansListContent() {
     const router = useRouter();
@@ -26,8 +28,29 @@ function PlansListContent() {
     const loadPlans = async () => {
         try {
             setLoading(true);
-            const data = await getAllPlans();
-            setPlans(data);
+
+            // Fetch all plans from Supabase
+            const { data, error } = await supabase
+                .from('plans')
+                .select('*');
+
+            if (error) {
+                throw error;
+            }
+
+            // Convert from snake_case to camelCase
+            const plansData: Plan[] = (data || []).map((p: any) => ({
+                id: p.id,
+                name: p.name,
+                duration: p.duration,
+                price: p.price,
+                description: p.description,
+                isActive: p.is_active,
+                createdAt: new Date(p.created_at),
+                updatedAt: new Date(p.updated_at),
+            }));
+
+            setPlans(plansData);
         } catch (error) {
             console.error('Error loading plans:', error);
         } finally {
@@ -37,7 +60,14 @@ function PlansListContent() {
 
     const handleToggleStatus = async (id: string, currentStatus: boolean, name: string) => {
         const action = currentStatus ? 'disable' : 'enable';
-        const memberCount = await getMemberCountByPlan(id);
+
+        // Get member count for this plan
+        const { count, error: countError } = await supabase
+            .from('members')
+            .select('id', { count: 'exact', head: true })
+            .eq('plan_id', id);
+
+        const memberCount = count || 0;
 
         let confirmMessage = `${action === 'disable' ? 'Disable' : 'Enable'} plan "${name}"?`;
         if (action === 'disable' && memberCount > 0) {
@@ -50,7 +80,20 @@ function PlansListContent() {
 
         try {
             setTogglingId(id);
-            await togglePlanStatus(id);
+
+            // Toggle plan status in Supabase
+            const { error } = await supabase
+                .from('plans')
+                .update({
+                    is_active: !currentStatus,
+                    updated_at: new Date().toISOString(),
+                })
+                .eq('id', id);
+
+            if (error) {
+                throw error;
+            }
+
             await loadPlans();
         } catch (error) {
             console.error('Error toggling plan status:', error);

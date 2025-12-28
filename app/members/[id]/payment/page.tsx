@@ -11,12 +11,21 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Member } from '@/lib/types/member';
 import { Plan } from '@/lib/types/plan';
 import { PaymentFormData, PaymentMode } from '@/lib/types/payment';
-import {
-    getMemberById,
-    getActivePlans,
-    createPayment,
-    calculateNewExpiry
-} from '@/lib/services/mock-firestore';
+import { createClient } from '@/lib/supabase/client';
+const supabase = createClient();
+
+
+// Inline expiry calculation (previously from mock-firestore)
+function calculateNewExpiry(
+    currentExpiryDate: Date,
+    planDuration: number
+): { startDate: Date; expiryDate: Date } {
+    const today = new Date();
+    const startDate = currentExpiryDate < today ? today : currentExpiryDate;
+    const expiryDate = new Date(startDate);
+    expiryDate.setDate(expiryDate.getDate() + planDuration);
+    return { startDate, expiryDate };
+}
 
 function RecordPaymentFormContent() {
     const router = useRouter();
@@ -57,16 +66,62 @@ function RecordPaymentFormContent() {
     const loadData = async () => {
         try {
             setLoading(true);
-            const [memberData, plansData] = await Promise.all([
-                getMemberById(memberId),
-                getActivePlans(),
-            ]);
 
-            if (!memberData) {
+            // Fetch member from Supabase - using CORRECT column names
+            const { data: memberResult, error: memberError } = await supabase
+                .from('members')
+                .select(`
+                    id, name, email, phone, photo_url, plan_id,
+                    start_date, expiry_date, created_at,
+                    plans (id, name, price, duration_days)
+                `)
+                .eq('id', memberId)
+                .single();
+
+            // Fetch active plans from Supabase
+            const { data: plansResult, error: plansError } = await supabase
+                .from('plans')
+                .select('*')
+                .eq('is_active', true);
+
+            if (memberError || !memberResult) {
+                console.error('❌ Error loading member:', memberError);
                 alert('Member not found');
                 router.push('/members');
                 return;
             }
+
+            console.log('✅ Loaded member for payment:', memberResult.name);
+
+            // Convert member from snake_case to camelCase - CORRECT column names
+            const memberData: Member = {
+                id: memberResult.id,
+                name: memberResult.name,
+                phone: memberResult.phone,
+                email: memberResult.email,
+                photoUrl: memberResult.photo_url,
+                joinDate: memberResult.start_date ? new Date(memberResult.start_date) : new Date(),
+                planId: memberResult.plan_id,
+                planName: (memberResult.plans as any)?.name || 'Unknown',
+                membershipStartDate: memberResult.start_date ? new Date(memberResult.start_date) : new Date(),
+                membershipExpiryDate: memberResult.expiry_date ? new Date(memberResult.expiry_date) : new Date(),
+                notes: '',
+                isActive: true,
+                createdAt: memberResult.created_at ? new Date(memberResult.created_at) : new Date(),
+                updatedAt: memberResult.created_at ? new Date(memberResult.created_at) : new Date(),
+            };
+
+            // Convert plans from snake_case to camelCase - CORRECT column name
+            const plansData: Plan[] = (plansResult || []).map((p: any) => ({
+                id: p.id,
+                name: p.name,
+                duration: p.duration_days, // Map duration_days to duration
+                price: p.price,
+                description: p.description,
+                isActive: p.is_active,
+                createdAt: p.created_at ? new Date(p.created_at) : new Date(),
+                updatedAt: p.created_at ? new Date(p.created_at) : new Date(),
+            }));
 
             setMember(memberData);
             setPlans(plansData);
@@ -115,20 +170,58 @@ function RecordPaymentFormContent() {
             return;
         }
 
-        if (!user?.email) {
-            alert('User email not found');
+        if (!user?.email || !member) {
+            alert('User email or member not found');
             return;
         }
 
         try {
             setSubmitting(true);
-            await createPayment(
-                {
-                    ...formData,
-                    memberId,
-                },
-                user.email
-            );
+
+            // Get the selected plan
+            const plan = plans.find(p => p.id === formData.planId);
+            if (!plan) {
+                throw new Error('Plan not found');
+            }
+
+            // Calculate new expiry
+            const today = new Date();
+            const currentExpiry = member.membershipExpiryDate;
+            const startDate = currentExpiry < today ? today : currentExpiry;
+            const newExpiry = new Date(startDate);
+            newExpiry.setDate(newExpiry.getDate() + plan.duration);
+
+            // Create payment record in Supabase - using CORRECT column names
+            const { error: paymentError } = await supabase
+                .from('payments')
+                .insert({
+                    member_id: memberId,
+                    amount: formData.amount,
+                    payment_date: formData.paymentDate.toISOString().split('T')[0], // YYYY-MM-DD
+                    mode: formData.paymentMode, // CORRECT: use 'mode' not 'payment_mode'
+                });
+
+            if (paymentError) {
+                console.error('❌ Payment insert error:', paymentError);
+                throw paymentError;
+            }
+
+            console.log('✅ Payment created');
+
+            // Update member's membership in Supabase - using CORRECT column names
+            const { error: memberError } = await supabase
+                .from('members')
+                .update({
+                    plan_id: plan.id,
+                    start_date: startDate.toISOString().split('T')[0], // YYYY-MM-DD
+                    expiry_date: newExpiry.toISOString().split('T')[0], // YYYY-MM-DD
+                })
+                .eq('id', memberId);
+
+            if (memberError) {
+                throw memberError;
+            }
+
             router.push(`/members/${memberId}`);
         } catch (error) {
             console.error('Error creating payment:', error);

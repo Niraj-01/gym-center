@@ -9,7 +9,9 @@ import { useRouter, useParams } from 'next/navigation';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { Member, MemberFormData } from '@/lib/types/member';
 import { Plan } from '@/lib/types/plan';
-import { getMemberById, updateMember, getActivePlans } from '@/lib/services/mock-firestore';
+import { createClient } from '@/lib/supabase/client';
+const supabase = createClient();
+
 
 function EditMemberFormContent() {
     const router = useRouter();
@@ -30,16 +32,62 @@ function EditMemberFormContent() {
     const loadData = async () => {
         try {
             setLoading(true);
-            const [memberData, plansData] = await Promise.all([
-                getMemberById(memberId),
-                getActivePlans(),
-            ]);
 
-            if (!memberData) {
+            // Fetch member from Supabase - using CORRECT column names
+            const { data: memberResult, error: memberError } = await supabase
+                .from('members')
+                .select(`
+                    id, name, email, phone, photo_url, plan_id,
+                    start_date, expiry_date, created_at,
+                    plans (id, name, price, duration_days)
+                `)
+                .eq('id', memberId)
+                .single();
+
+            // Fetch active plans from Supabase
+            const { data: plansResult, error: plansError } = await supabase
+                .from('plans')
+                .select('*')
+                .eq('is_active', true);
+
+            if (memberError || !memberResult) {
+                console.error('❌ Error loading member:', memberError);
                 alert('Member not found');
                 router.push('/members');
                 return;
             }
+
+            console.log('✅ Loaded member:', memberResult.name);
+
+            // Convert from snake_case to camelCase - using CORRECT column names
+            const memberData: Member = {
+                id: memberResult.id,
+                name: memberResult.name,
+                phone: memberResult.phone,
+                email: memberResult.email,
+                photoUrl: memberResult.photo_url,
+                joinDate: memberResult.start_date ? new Date(memberResult.start_date) : new Date(),
+                planId: memberResult.plan_id,
+                planName: (memberResult.plans as any)?.name || 'Unknown',
+                membershipStartDate: memberResult.start_date ? new Date(memberResult.start_date) : new Date(),
+                membershipExpiryDate: memberResult.expiry_date ? new Date(memberResult.expiry_date) : new Date(),
+                notes: '',
+                isActive: true,
+                createdAt: memberResult.created_at ? new Date(memberResult.created_at) : new Date(),
+                updatedAt: memberResult.created_at ? new Date(memberResult.created_at) : new Date(),
+            };
+
+            // Map plans with correct column names
+            const plansData: Plan[] = (plansResult || []).map((p: any) => ({
+                id: p.id,
+                name: p.name,
+                duration: p.duration_days, // Map duration_days to duration
+                price: p.price,
+                description: p.description,
+                isActive: p.is_active,
+                createdAt: p.created_at ? new Date(p.created_at) : new Date(),
+                updatedAt: p.created_at ? new Date(p.created_at) : new Date(),
+            }));
 
             setMember(memberData);
             setPlans(plansData);
@@ -72,11 +120,46 @@ function EditMemberFormContent() {
 
         try {
             setSubmitting(true);
-            await updateMember(memberId, formData);
+
+            // Get selected plan to calculate new expiry if plan or start date changed
+            const selectedPlan = plans.find(p => p.id === formData.planId);
+            let membershipExpiryDate = member?.membershipExpiryDate;
+
+            if (selectedPlan && formData.membershipStartDate) {
+                // Plan or start date changed - recalculate expiry
+                if (formData.planId !== member?.planId ||
+                    formData.membershipStartDate.getTime() !== member?.membershipStartDate.getTime()) {
+                    const expiryDate = new Date(formData.membershipStartDate);
+                    expiryDate.setDate(expiryDate.getDate() + selectedPlan.duration);
+                    membershipExpiryDate = expiryDate;
+                }
+            }
+
+            // Update member in Supabase - using CORRECT column names
+            const { error } = await supabase
+                .from('members')
+                .update({
+                    name: formData.name,
+                    phone: formData.phone,
+                    email: formData.email || null,
+                    photo_url: formData.photoUrl || null,
+                    plan_id: formData.planId,
+                    start_date: formData.membershipStartDate?.toISOString().split('T')[0], // YYYY-MM-DD
+                    expiry_date: membershipExpiryDate?.toISOString().split('T')[0], // YYYY-MM-DD
+                })
+                .eq('id', memberId);
+
+            if (error) {
+                throw error;
+            }
+
             router.push(`/members/${memberId}`);
         } catch (error) {
             console.error('Error updating member:', error);
-            alert('Failed to update member');
+            const errorMessage = error instanceof Error
+                ? error.message
+                : 'Unknown error occurred';
+            alert(`Failed to update member: ${errorMessage}`);
         } finally {
             setSubmitting(false);
         }

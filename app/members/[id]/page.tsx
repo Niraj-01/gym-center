@@ -8,8 +8,10 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { Member, getMemberStatus, getStatusDisplay } from '@/lib/types/member';
-import { getMemberById } from '@/lib/services/mock-firestore';
 import { MemberAvatar } from '@/components/members/MemberAvatar';
+import { createClient } from '@/lib/supabase/client';
+const supabase = createClient();
+
 
 function MemberProfileContent() {
     const router = useRouter();
@@ -26,10 +28,62 @@ function MemberProfileContent() {
     const loadMember = async () => {
         try {
             setLoading(true);
-            const data = await getMemberById(memberId);
-            setMember(data);
+
+            // Fetch member from Supabase
+            const { data, error } = await supabase
+                .from('members')
+                .select(`
+                    id,
+                    name,
+                    email,
+                    phone,
+                    photo_url,
+                    join_date,
+                    plan_id,
+                    membership_start_date,
+                    membership_expiry_date,
+                    notes,
+                    is_active,
+                    created_at,
+                    updated_at,
+                    plans (
+                        id,
+                        name,
+                        price,
+                        duration
+                    )
+                `)
+                .eq('id', memberId)
+                .single();
+
+            if (error || !data) {
+                console.error('Error loading member:', error);
+                setMember(null);
+                return;
+            }
+
+            // Convert snake_case to camelCase and date strings to Date objects
+            const memberData: Member = {
+                id: data.id,
+                name: data.name,
+                phone: data.phone,
+                email: data.email,
+                photoUrl: data.photo_url,
+                joinDate: new Date(data.join_date),
+                planId: data.plan_id,
+                planName: (data.plans as any)?.name || 'Unknown Plan',
+                membershipStartDate: new Date(data.membership_start_date),
+                membershipExpiryDate: new Date(data.membership_expiry_date),
+                notes: data.notes,
+                isActive: data.is_active,
+                createdAt: new Date(data.created_at),
+                updatedAt: new Date(data.updated_at),
+            };
+
+            setMember(memberData);
         } catch (error) {
             console.error('Error loading member:', error);
+            setMember(null);
         } finally {
             setLoading(false);
         }

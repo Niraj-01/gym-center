@@ -10,7 +10,8 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { useRouter } from 'next/navigation';
 import { User } from '@/lib/auth/types';
 import { authProvider } from '@/lib/auth/auth-provider';
-import { getMemberByEmail } from '@/lib/services/mock-firestore';
+import { createClient } from '@/lib/supabase/client';
+const supabase = createClient();
 
 interface AuthContextValue {
     user: User | null;
@@ -60,9 +61,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 return;
             }
 
-            // 2. Check members collection
-            const member = await getMemberByEmail(email);
-            if (member) {
+            // 2. Check members collection in Supabase
+            const { data: member, error } = await supabase
+                .from('members')
+                .select('id')
+                .eq('email', email)
+                .single();
+
+            if (member && !error) {
                 setIsAdmin(false);
                 setIsMember(true);
                 router.push('/me');

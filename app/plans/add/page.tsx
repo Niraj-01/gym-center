@@ -8,7 +8,9 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { PlanFormData } from '@/lib/types/plan';
-import { createPlan } from '@/lib/services/mock-firestore';
+import { createClient } from '@/lib/supabase/client';
+const supabase = createClient();
+
 
 function AddPlanFormContent() {
     const router = useRouter();
@@ -41,11 +43,31 @@ function AddPlanFormContent() {
 
         try {
             setSubmitting(true);
-            await createPlan(formData);
+
+            // Insert plan into Supabase
+            const { error } = await supabase
+                .from('plans')
+                .insert({
+                    name: formData.name,
+                    duration: formData.duration,
+                    price: formData.price,
+                    description: formData.description || null,
+                    is_active: true,
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString(),
+                });
+
+            if (error) {
+                throw error;
+            }
+
             router.push('/plans');
         } catch (error) {
             console.error('Error creating plan:', error);
-            alert('Failed to create plan');
+            const errorMessage = error instanceof Error
+                ? error.message
+                : 'Unknown error occurred';
+            alert(`Failed to create plan: ${errorMessage}`);
         } finally {
             setSubmitting(false);
         }
