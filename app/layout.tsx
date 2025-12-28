@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { MemberAuthProvider } from "@/contexts/MemberAuthContext";
 import { PRODUCT_NAME } from "@/lib/config";
 
 export const metadata: Metadata = {
@@ -25,7 +26,9 @@ export default function RootLayout({
       </head>
       <body className="antialiased">
         <AuthProvider>
-          {children}
+          <MemberAuthProvider>
+            {children}
+          </MemberAuthProvider>
         </AuthProvider>
       </body>
     </html>

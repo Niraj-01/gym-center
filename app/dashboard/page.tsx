@@ -148,37 +148,41 @@ function DashboardContent() {
         <div className="min-h-screen bg-white">
             {/* Header */}
             <header className="bg-white border-b border-gray-200">
-                <div className="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
-                    <div>
-                        <h1 className="text-2xl font-bold text-black">{GYM_NAME}</h1>
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
+                    {/* Title */}
+                    <div className="mb-4 sm:mb-0">
+                        <h1 className="text-xl sm:text-2xl font-bold text-black">{GYM_NAME}</h1>
                         <p className="text-sm text-gray-500 mt-1">{PRODUCT_NAME} Dashboard</p>
                     </div>
 
-                    <div className="flex items-center gap-6">
+                    {/* Navigation and User Controls */}
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-6 w-full sm:w-auto">
                         {/* Navigation */}
-                        <button
-                            onClick={() => router.push('/members')}
-                            className="px-4 py-2 text-sm text-gray-700 hover:text-black hover:bg-gray-100 rounded-md transition-colors"
-                        >
-                            Members
-                        </button>
-                        <button
-                            onClick={() => router.push('/plans')}
-                            className="px-4 py-2 text-sm text-gray-700 hover:text-black hover:bg-gray-100 rounded-md transition-colors"
-                        >
-                            Plans
-                        </button>
+                        <div className="flex gap-2 sm:gap-4">
+                            <button
+                                onClick={() => router.push('/members')}
+                                className="flex-1 sm:flex-none px-4 py-2 text-sm text-gray-700 hover:text-black hover:bg-gray-100 rounded-md transition-colors"
+                            >
+                                Members
+                            </button>
+                            <button
+                                onClick={() => router.push('/plans')}
+                                className="flex-1 sm:flex-none px-4 py-2 text-sm text-gray-700 hover:text-black hover:bg-gray-100 rounded-md transition-colors"
+                            >
+                                Plans
+                            </button>
+                        </div>
 
                         {/* User Info */}
-                        <div className="text-right border-l border-gray-200 pl-6">
+                        <div className="hidden sm:block text-right sm:border-l sm:border-gray-200 sm:pl-6">
                             <p className="text-sm font-medium text-black">{user?.displayName || 'Admin'}</p>
-                            <p className="text-sm text-gray-500">{user?.email}</p>
+                            <p className="hidden md:block text-sm text-gray-500">{user?.email}</p>
                         </div>
 
                         {/* Sign Out */}
                         <button
                             onClick={() => signOut()}
-                            className="px-6 py-2 border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
+                            className="w-full sm:w-auto px-6 py-2 border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
                         >
                             Sign Out
                         </button>
@@ -187,7 +191,7 @@ function DashboardContent() {
             </header>
 
             {/* Main Content */}
-            <main className="max-w-7xl mx-auto px-6 py-8">
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
                 {loading ? (
                     <div className="text-center py-12">
                         <div className="animate-spin rounded-full h-10 w-10 border-2 border-gray-200 border-t-black mx-auto mb-4"></div>
@@ -196,11 +200,11 @@ function DashboardContent() {
                 ) : (
                     <>
                         {/* Member Stats Cards */}
-                        <div className="mb-8">
-                            <h2 className="text-lg font-semibold text-black mb-6">Member Statistics</h2>
-                            <div className="grid grid-cols-4 gap-6">
+                        <div className="mb-6 sm:mb-8">
+                            <h2 className="text-base sm:text-lg font-semibold text-black mb-4 sm:mb-6">Member Statistics</h2>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
                                 {/* Total Members */}
-                                <div className="p-6 border border-gray-200">
+                                <div className="p-4 lg:p-6 border border-gray-200">
                                     <p className="text-sm text-gray-500">Total Members</p>
                                     <p className="text-3xl font-semibold text-black mt-2">
                                         {stats?.totalMembers || 0}
@@ -208,7 +212,7 @@ function DashboardContent() {
                                 </div>
 
                                 {/* Active Members */}
-                                <div className="p-6 border border-gray-200">
+                                <div className="p-4 lg:p-6 border border-gray-200">
                                     <p className="text-sm text-gray-500">Active</p>
                                     <p className="text-3xl font-semibold text-gray-900 mt-2">
                                         {stats?.activeMembers || 0}
@@ -217,7 +221,7 @@ function DashboardContent() {
                                 </div>
 
                                 {/* Expiring Soon */}
-                                <div className="p-6 border border-gray-200">
+                                <div className="p-4 lg:p-6 border border-gray-200">
                                     <p className="text-sm text-gray-500">Expiring Soon</p>
                                     <p className="text-3xl font-semibold text-gray-600 mt-2">
                                         {stats?.dueSoonMembers || 0}
@@ -226,7 +230,7 @@ function DashboardContent() {
                                 </div>
 
                                 {/* Expired */}
-                                <div className="p-6 border border-gray-200">
+                                <div className="p-4 lg:p-6 border border-gray-200">
                                     <p className="text-sm text-gray-500">Expired</p>
                                     <p className="text-3xl font-semibold text-gray-400 mt-2">
                                         {stats?.expiredMembers || 0}
@@ -237,11 +241,11 @@ function DashboardContent() {
                         </div>
 
                         {/* Revenue Cards */}
-                        <div className="mb-8">
-                            <h2 className="text-lg font-semibold text-black mb-6">Revenue</h2>
-                            <div className="grid grid-cols-2 gap-6">
+                        <div className="mb-6 sm:mb-8">
+                            <h2 className="text-base sm:text-lg font-semibold text-black mb-4 sm:mb-6">Revenue</h2>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
                                 {/* This Month Revenue */}
-                                <div className="p-6 border border-gray-200">
+                                <div className="p-4 lg:p-6 border border-gray-200">
                                     <p className="text-sm text-gray-500">This Month</p>
                                     <p className="text-3xl font-semibold text-black mt-2">
                                         {formatCurrency(stats?.thisMonthRevenue || 0)}
@@ -250,7 +254,7 @@ function DashboardContent() {
                                 </div>
 
                                 {/* Total Revenue */}
-                                <div className="p-6 border border-gray-200">
+                                <div className="p-4 lg:p-6 border border-gray-200">
                                     <p className="text-sm text-gray-500">Total Revenue</p>
                                     <p className="text-3xl font-semibold text-black mt-2">
                                         {formatCurrency(stats?.totalRevenue || 0)}
@@ -262,18 +266,19 @@ function DashboardContent() {
 
                         {/* Recent Payments */}
                         {recentPayments.length > 0 && (
-                            <div className="mb-8">
-                                <div className="flex items-center justify-between mb-6">
-                                    <h2 className="text-lg font-semibold text-black">Recent Payments</h2>
+                            <div className="mb-6 sm:mb-8">
+                                <div className="flex items-center justify-between mb-4 sm:mb-6">
+                                    <h2 className="text-base sm:text-lg font-semibold text-black">Recent Payments</h2>
                                     <button
                                         onClick={() => router.push('/members')}
-                                        className="text-sm text-gray-600 hover:text-black transition-colors"
+                                        className="text-xs sm:text-sm text-gray-600 hover:text-black transition-colors"
                                     >
-                                        View all members →
+                                        View all →
                                     </button>
                                 </div>
 
-                                <div className="border border-gray-200">
+                                {/* Desktop: Table */}
+                                <div className="hidden md:block border border-gray-200">
                                     <table className="w-full">
                                         <thead className="bg-gray-50 border-b border-gray-200">
                                             <tr>
@@ -315,28 +320,54 @@ function DashboardContent() {
                                         </tbody>
                                     </table>
                                 </div>
+
+                                {/* Mobile: Cards */}
+                                <div className="md:hidden space-y-3">
+                                    {recentPayments.map((payment) => (
+                                        <div
+                                            key={payment.id}
+                                            onClick={() => router.push(`/members/${payment.memberId}`)}
+                                            className="p-4 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
+                                        >
+                                            <div className="flex justify-between items-start mb-2">
+                                                <div className="flex-1">
+                                                    <p className="text-sm font-medium text-black">{payment.memberName}</p>
+                                                    <p className="text-xs text-gray-500 mt-1">{payment.memberPhone}</p>
+                                                </div>
+                                                <p className="text-sm font-semibold text-black">{formatCurrency(payment.amount)}</p>
+                                            </div>
+                                            <div className="flex items-center justify-between text-xs text-gray-600">
+                                                <span>{formatDate(payment.paymentDate)}</span>
+                                                <span>•</span>
+                                                <span>{payment.planName}</span>
+                                                <span>•</span>
+                                                <span>{formatPaymentMode(payment.paymentMode)}</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         )}
 
                         {/* Quick Actions */}
                         <div>
-                            <h2 className="text-lg font-semibold text-black mb-6">Quick Actions</h2>
-                            <div className="flex items-center gap-4">
+                            <h2 className="text-base sm:text-lg font-semibold text-black mb-4 sm:mb-6">Quick Actions</h2>
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
                                 <button
                                     onClick={() => router.push('/members/add')}
-                                    className="px-6 py-3 bg-blue-600 text-white hover:bg-blue-700 rounded-md transition-colors font-medium"
+                                    className="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white hover:bg-blue-700 rounded-md transition-colors font-medium text-sm sm:text-base"
                                 >
                                     Add New Member
                                 </button>
                                 <button
                                     onClick={() => router.push('/members')}
-                                    className="px-6 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-md transition-colors font-medium"
+                                    className="w-full sm:w-auto px-6 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-md transition-colors font-medium text-sm sm:text-base"
                                 >
                                     View All Members
                                 </button>
                                 <button
                                     onClick={() => router.push('/plans')}
-                                    className="px-6 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-md transition-colors font-medium"
+                                    className="w-full sm:w-auto px-6 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-md transition-colors font-medium text-sm sm:text-base"
                                 >
                                     Manage Plans
                                 </button>
