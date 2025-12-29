@@ -28,6 +28,7 @@ interface DashboardStats {
 function DashboardContent() {
     const router = useRouter();
     const { user, signOut } = useAuth();
+    const adminEmail = user?.email || 'Admin';
     const [stats, setStats] = useState<DashboardStats | null>(null);
     const [recentPayments, setRecentPayments] = useState<Payment[]>([]);
     const [loading, setLoading] = useState(true);
@@ -182,8 +183,8 @@ function DashboardContent() {
 
                         {/* User Info */}
                         <div className="hidden sm:block text-right sm:border-l sm:border-gray-200 sm:pl-6">
-                            <p className="text-sm font-medium text-black">{user?.displayName || 'Admin'}</p>
-                            <p className="hidden md:block text-sm text-gray-500">{user?.email}</p>
+                            <p className="text-sm font-medium text-black">Admin</p>
+                            <p className="hidden md:block text-sm text-gray-500">{adminEmail}</p>
                         </div>
 
                         {/* Sign Out */}

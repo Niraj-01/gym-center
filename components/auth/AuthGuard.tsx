@@ -2,7 +2,7 @@
 
 /**
  * AuthGuard - Protects admin-only routes
- * Redirects members to /me, unknown users to /access-denied
+ * Redirects unauthenticated users to login page
  */
 
 import { useEffect, ReactNode } from 'react';
@@ -10,24 +10,14 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 
 export function AuthGuard({ children }: { children: ReactNode }) {
-    const { user, loading, isAdmin, isMember } = useAuth();
+    const { user, loading, isAdmin } = useAuth();
     const router = useRouter();
 
     useEffect(() => {
-        if (!loading) {
-            if (!user) {
-                // Not authenticated - go to login
-                router.push('/login');
-            } else if (isMember && !isAdmin) {
-                // Is a member but not admin - redirect to member dashboard
-                router.push('/me');
-            } else if (!isAdmin && !isMember) {
-                // Unknown user - access denied
-                router.push('/access-denied');
-            }
-            // If isAdmin, allow access (do nothing)
+        if (!loading && !isAdmin) {
+            router.push('/login');
         }
-    }, [user, loading, isAdmin, isMember, router]);
+    }, [loading, isAdmin, router]);
 
     // Show loading state
     if (loading) {
@@ -41,11 +31,11 @@ export function AuthGuard({ children }: { children: ReactNode }) {
         );
     }
 
-    // If no user or not admin, show nothing (will redirect)
-    if (!user || !isAdmin) {
+    // If not admin, show nothing (will redirect)
+    if (!isAdmin) {
         return null;
     }
 
-    // Render children if authenticated AND is admin
+    // Render children if authenticated admin
     return <>{children}</>;
 }

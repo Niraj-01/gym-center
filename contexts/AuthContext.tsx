@@ -1,115 +1,79 @@
 'use client';
 
 /**
- * Auth Context - Manages authentication state across the app
- * Provider-agnostic - works with any AuthProvider implementation
- * NOW includes role resolution: Admin vs Member vs Unknown
+ * Auth Context - Manages admin authentication state
+ * Uses simple email/password authentication against admins table
  */
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { User } from '@/lib/auth/types';
-import { authProvider } from '@/lib/auth/auth-provider';
-import { createClient } from '@/lib/supabase/client';
-const supabase = createClient();
+import {
+    getAdminSession,
+    clearAdminSession,
+    verifyAdminCredentials,
+    createAdminSession,
+    AdminSession,
+} from '@/lib/auth/simple-auth';
 
 interface AuthContextValue {
-    user: User | null;
+    user: AdminSession | null;
     loading: boolean;
     isAdmin: boolean;
-    isMember: boolean;
-    signInWithGoogle: () => Promise<void>;
-    signOut: () => Promise<void>;
+    signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+    signOut: () => void;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const router = useRouter();
-    const [user, setUser] = useState<User | null>(null);
+    const [user, setUser] = useState<AdminSession | null>(null);
     const [loading, setLoading] = useState(true);
     const [isAdmin, setIsAdmin] = useState(false);
-    const [isMember, setIsMember] = useState(false);
 
+    // Check for existing session on mount
     useEffect(() => {
-        // Subscribe to auth state changes
-        const unsubscribe = authProvider.onAuthStateChanged(async (user) => {
-            setUser(user);
-
-            if (user?.email) {
-                // Role Resolution (MANDATORY ORDER)
-                await resolveUserRole(user.email);
-            } else {
-                setIsAdmin(false);
-                setIsMember(false);
-            }
-
-            setLoading(false);
-        });
-
-        return unsubscribe;
+        const session = getAdminSession();
+        if (session && session.isLoggedIn) {
+            setUser(session);
+            setIsAdmin(true);
+        }
+        setLoading(false);
     }, []);
 
-    const resolveUserRole = async (email: string) => {
+    const signIn = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
         try {
-            // 1. Check admin whitelist FIRST
-            const adminStatus = await authProvider.isAdminEmail(email);
-            if (adminStatus) {
-                setIsAdmin(true);
-                setIsMember(false);
-                router.push('/dashboard');
-                return;
+            // Verify credentials against admins table
+            const isValid = await verifyAdminCredentials(email, password);
+
+            if (!isValid) {
+                return { success: false, error: 'Invalid email or password' };
             }
 
-            // 2. Check members collection in Supabase
-            const { data: member, error } = await supabase
-                .from('members')
-                .select('id')
-                .eq('email', email)
-                .single();
+            // Create session
+            createAdminSession(email);
 
-            if (member && !error) {
-                setIsAdmin(false);
-                setIsMember(true);
-                router.push('/me');
-                return;
-            }
+            // Update state
+            const session = getAdminSession();
+            setUser(session);
+            setIsAdmin(true);
 
-            // 3. Unknown user - redirect to access denied
-            setIsAdmin(false);
-            setIsMember(false);
-            router.push('/access-denied');
+            return { success: true };
         } catch (error) {
-            console.error('Role resolution error:', error);
-            setIsAdmin(false);
-            setIsMember(false);
+            console.error('Sign in error:', error);
+            return { success: false, error: 'An error occurred. Please try again.' };
         }
     };
 
-    const signInWithGoogle = async () => {
-        try {
-            await authProvider.signInWithGoogle();
-            // Role resolution happens in onAuthStateChanged
-        } catch (error) {
-            console.error('Sign in failed:', error);
-            throw error;
-        }
-    };
-
-    const signOut = async () => {
-        try {
-            await authProvider.signOut();
-            setIsAdmin(false);
-            setIsMember(false);
-            router.push('/login');
-        } catch (error) {
-            console.error('Sign out failed:', error);
-            throw error;
-        }
+    const signOut = () => {
+        clearAdminSession();
+        setUser(null);
+        setIsAdmin(false);
+        router.push('/login');
     };
 
     return (
-        <AuthContext.Provider value={{ user, loading, isAdmin, isMember, signInWithGoogle, signOut }}>
+        <AuthContext.Provider value={{ user, loading, isAdmin, signIn, signOut }}>
             {children}
         </AuthContext.Provider>
     );

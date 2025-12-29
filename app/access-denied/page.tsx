@@ -11,9 +11,8 @@ export default function AccessDeniedPage() {
     const { user, signOut } = useAuth();
     const router = useRouter();
 
-    const handleSignOut = async () => {
-        await signOut();
-        router.push('/login');
+    const handleSignOut = () => {
+        signOut();
     };
 
     return (
