@@ -205,42 +205,53 @@ function MembersListContent() {
         <div className="min-h-screen bg-white">
             {/* Header */}
             <header className="bg-white border-b border-gray-200">
-                <div className="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
-                    <div>
-                        <h1 className="text-2xl font-semibold text-black">GymCentre</h1>
-                        <p className="text-sm text-gray-500 mt-1">Member Management</p>
-                    </div>
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                            <img src="/logo.png" alt="GymCentre" className="h-6 sm:h-8" />
+                            <div>
+                                <h1 className="text-xl sm:text-2xl font-semibold text-black">GymCentre</h1>
+                                <p className="text-sm text-gray-500 mt-1">Member Management</p>
+                            </div>
+                        </div>
 
-                    <div className="flex items-center gap-4">
-                        <button
-                            onClick={() => router.push('/dashboard')}
-                            className="px-4 py-2 text-sm text-gray-700 hover:text-black transition-colors"
-                        >
-                            Dashboard
-                        </button>
-                        <button
-                            onClick={() => signOut()}
-                            className="px-6 py-2 border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                        >
-                            Sign Out
-                        </button>
+                        <div className="flex items-center gap-2 sm:gap-4">
+                            <button
+                                onClick={() => router.push('/dashboard')}
+                                className="flex-1 sm:flex-none px-4 py-2 text-sm text-gray-700 hover:text-black transition-colors"
+                            >
+                                Dashboard
+                            </button>
+                            <button
+                                onClick={() => router.push('/plans')}
+                                className="flex-1 sm:flex-none px-4 py-2 text-sm text-gray-700 hover:text-black transition-colors"
+                            >
+                                Plans
+                            </button>
+                            <button
+                                onClick={() => signOut()}
+                                className="flex-1 sm:flex-none px-4 sm:px-6 py-2 border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                            >
+                                Sign Out
+                            </button>
+                        </div>
                     </div>
                 </div>
             </header>
 
             {/* Main Content */}
-            <main className="max-w-7xl mx-auto px-6 py-8">
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
                 {/* Page Header */}
-                <div className="flex items-center justify-between mb-8 pb-6 border-b border-gray-200">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8 pb-6 border-b border-gray-200">
                     <div>
-                        <h2 className="text-2xl font-semibold text-black">Members</h2>
+                        <h2 className="text-xl sm:text-2xl font-semibold text-black">Members</h2>
                         <p className="text-sm text-gray-500 mt-1">
                             {members.length} total members
                         </p>
                     </div>
                     <button
                         onClick={() => router.push('/members/add')}
-                        className="px-6 py-3 bg-black text-white hover:bg-gray-800 transition-colors font-medium"
+                        className="w-full sm:w-auto px-6 py-3 bg-black text-white hover:bg-gray-800 transition-colors font-medium"
                     >
                         Add Member
                     </button>
@@ -250,7 +261,7 @@ function MembersListContent() {
                     <>
                         {/* Search & Filter Bar */}
                         <div className="mb-6">
-                            <div className="flex gap-4 mb-4">
+                            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4">
                                 {/* Search */}
                                 <div className="flex-1">
                                     <input
@@ -258,7 +269,7 @@ function MembersListContent() {
                                         placeholder="Search by name or phone..."
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="w-full px-4 py-3 border border-gray-300 text-black focus:outline-none focus:border-black transition-colors"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg sm:rounded-none text-black focus:outline-none focus:border-black transition-colors"
                                     />
                                 </div>
 
@@ -266,7 +277,7 @@ function MembersListContent() {
                                 <select
                                     value={statusFilter}
                                     onChange={(e) => setStatusFilter(e.target.value as 'all' | MemberStatus)}
-                                    className="px-4 py-3 border border-gray-300 text-black focus:outline-none focus:border-black transition-colors"
+                                    className="w-full sm:w-auto px-4 py-3 border border-gray-300 rounded-lg sm:rounded-none text-black focus:outline-none focus:border-black transition-colors"
                                 >
                                     <option value="all">All Members</option>
                                     <option value="active">Active Only</option>
@@ -348,92 +359,169 @@ function MembersListContent() {
                     </div>
                 )}
 
-                {/* Members Table */}
+                {/* Members List */}
                 {!loading && displayedMembers.length > 0 && (
-                    <div className="border border-gray-200">
-                        <table className="w-full">
-                            <thead className="bg-gray-50 border-b border-gray-200">
-                                <tr>
-                                    <th
-                                        onClick={() => handleSort('name')}
-                                        className="px-6 py-4 text-left text-sm font-semibold text-black cursor-pointer hover:bg-gray-100 transition-colors"
-                                    >
-                                        Name{getSortIndicator('name')}
-                                    </th>
-                                    <th className="px-6 py-4 text-left text-sm font-semibold text-black">Phone</th>
-                                    <th className="px-6 py-4 text-left text-sm font-semibold text-black">Plan</th>
-                                    <th
-                                        onClick={() => handleSort('expiry')}
-                                        className="px-6 py-4 text-left text-sm font-semibold text-black cursor-pointer hover:bg-gray-100 transition-colors"
-                                    >
-                                        Expiry{getSortIndicator('expiry')}
-                                    </th>
-                                    <th className="px-6 py-4 text-left text-sm font-semibold text-black">Status</th>
-                                    <th className="px-6 py-4 text-right text-sm font-semibold text-black">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-200">
-                                {displayedMembers.map((member) => {
-                                    const status = getMemberStatus(member.membershipExpiryDate);
-                                    const statusDisplay = getStatusDisplay(status);
+                    <>
+                        {/* Mobile Card View */}
+                        <div className="block lg:hidden space-y-4">
+                            {displayedMembers.map((member) => {
+                                const status = getMemberStatus(member.membershipExpiryDate);
+                                const statusDisplay = getStatusDisplay(status);
 
-                                    return (
-                                        <tr
-                                            key={member.id}
-                                            className="hover:bg-gray-50 transition-colors"
+                                return (
+                                    <div
+                                        key={member.id}
+                                        className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm"
+                                    >
+                                        {/* Member Header */}
+                                        <div className="flex items-start gap-3 mb-3">
+                                            <div className="flex-shrink-0">
+                                                <MemberAvatar
+                                                    name={member.name}
+                                                    photoUrl={member.photoUrl}
+                                                    size="md"
+                                                />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <button
+                                                    onClick={() => router.push(`/members/${member.id}`)}
+                                                    className="font-semibold text-base text-black hover:underline truncate block"
+                                                >
+                                                    {member.name}
+                                                </button>
+                                                <p className="text-sm text-gray-600">
+                                                    {member.phone}
+                                                </p>
+                                            </div>
+                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${status === 'active' ? 'bg-green-100 text-green-800' :
+                                                    status === 'due-soon' ? 'bg-yellow-100 text-yellow-800' :
+                                                        'bg-red-100 text-red-800'
+                                                }`}>
+                                                {statusDisplay.label}
+                                            </span>
+                                        </div>
+
+                                        {/* Member Details */}
+                                        <div className="grid grid-cols-2 gap-3 mb-4 text-sm">
+                                            <div>
+                                                <p className="text-gray-500">Plan</p>
+                                                <p className="font-medium text-gray-900">{member.planName}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-gray-500">Expiry</p>
+                                                <p className="font-medium text-gray-900">
+                                                    {formatDate(member.membershipExpiryDate)}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {/* Actions */}
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={() => router.push(`/members/${member.id}/edit`)}
+                                                className="flex-1 px-4 py-2.5 bg-black text-white rounded-lg text-sm font-medium"
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(member.id, member.name)}
+                                                disabled={deletingId === member.id}
+                                                className="flex-1 px-4 py-2.5 bg-red-100 text-red-700 rounded-lg text-sm font-medium disabled:opacity-50"
+                                            >
+                                                {deletingId === member.id ? 'Deleting...' : 'Delete'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        {/* Desktop Table View */}
+                        <div className="hidden lg:block border border-gray-200">
+                            <table className="w-full">
+                                <thead className="bg-gray-50 border-b border-gray-200">
+                                    <tr>
+                                        <th
+                                            onClick={() => handleSort('name')}
+                                            className="px-6 py-4 text-left text-sm font-semibold text-black cursor-pointer hover:bg-gray-100 transition-colors"
                                         >
-                                            <td className="px-6 py-4">
-                                                <div className="flex items-center gap-3">
-                                                    <MemberAvatar
-                                                        name={member.name}
-                                                        photoUrl={member.photoUrl}
-                                                        size="sm"
-                                                    />
-                                                    <button
-                                                        onClick={() => router.push(`/members/${member.id}`)}
-                                                        className="text-sm font-medium text-black hover:underline"
-                                                    >
-                                                        {member.name}
-                                                    </button>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 text-sm text-gray-600">
-                                                {member.phone}
-                                            </td>
-                                            <td className="px-6 py-4 text-sm text-gray-600">
-                                                {member.planName}
-                                            </td>
-                                            <td className="px-6 py-4 text-sm text-gray-600">
-                                                {formatDate(member.membershipExpiryDate)}
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <span className={`text-sm font-medium ${statusDisplay.color}`}>
-                                                    {statusDisplay.label}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 text-right">
-                                                <div className="flex items-center justify-end gap-2">
-                                                    <button
-                                                        onClick={() => router.push(`/members/${member.id}/edit`)}
-                                                        className="px-4 py-2 text-sm text-gray-700 hover:text-black transition-colors"
-                                                    >
-                                                        Edit
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleDelete(member.id, member.name)}
-                                                        disabled={deletingId === member.id}
-                                                        className="px-4 py-2 text-sm text-gray-500 hover:text-black transition-colors disabled:opacity-50"
-                                                    >
-                                                        {deletingId === member.id ? 'Deleting...' : 'Delete'}
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
+                                            Name{getSortIndicator('name')}
+                                        </th>
+                                        <th className="px-6 py-4 text-left text-sm font-semibold text-black">Phone</th>
+                                        <th className="px-6 py-4 text-left text-sm font-semibold text-black">Plan</th>
+                                        <th
+                                            onClick={() => handleSort('expiry')}
+                                            className="px-6 py-4 text-left text-sm font-semibold text-black cursor-pointer hover:bg-gray-100 transition-colors"
+                                        >
+                                            Expiry{getSortIndicator('expiry')}
+                                        </th>
+                                        <th className="px-6 py-4 text-left text-sm font-semibold text-black">Status</th>
+                                        <th className="px-6 py-4 text-right text-sm font-semibold text-black">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-200">
+                                    {displayedMembers.map((member) => {
+                                        const status = getMemberStatus(member.membershipExpiryDate);
+                                        const statusDisplay = getStatusDisplay(status);
+
+                                        return (
+                                            <tr
+                                                key={member.id}
+                                                className="hover:bg-gray-50 transition-colors"
+                                            >
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center gap-3">
+                                                        <MemberAvatar
+                                                            name={member.name}
+                                                            photoUrl={member.photoUrl}
+                                                            size="sm"
+                                                        />
+                                                        <button
+                                                            onClick={() => router.push(`/members/${member.id}`)}
+                                                            className="text-sm font-medium text-black hover:underline"
+                                                        >
+                                                            {member.name}
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4 text-sm text-gray-600">
+                                                    {member.phone}
+                                                </td>
+                                                <td className="px-6 py-4 text-sm text-gray-600">
+                                                    {member.planName}
+                                                </td>
+                                                <td className="px-6 py-4 text-sm text-gray-600">
+                                                    {formatDate(member.membershipExpiryDate)}
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <span className={`text-sm font-medium ${statusDisplay.color}`}>
+                                                        {statusDisplay.label}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 text-right">
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        <button
+                                                            onClick={() => router.push(`/members/${member.id}/edit`)}
+                                                            className="px-4 py-2 text-sm text-gray-700 hover:text-black transition-colors"
+                                                        >
+                                                            Edit
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDelete(member.id, member.name)}
+                                                            disabled={deletingId === member.id}
+                                                            className="px-4 py-2 text-sm text-gray-500 hover:text-black transition-colors disabled:opacity-50"
+                                                        >
+                                                            {deletingId === member.id ? 'Deleting...' : 'Delete'}
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    </>
                 )}
             </main>
         </div>
