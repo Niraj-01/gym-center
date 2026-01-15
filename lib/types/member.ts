@@ -51,15 +51,27 @@ export function getMemberStatus(expiryDate: Date): MemberStatus {
 }
 
 /**
- * Get status display info (color, label)
+ * Get status display info (color, label, badge classes)
  */
 export function getStatusDisplay(status: MemberStatus) {
     switch (status) {
         case 'active':
-            return { label: 'Active', color: 'text-gray-900' };
+            return {
+                label: 'Active',
+                color: 'text-green-800',
+                badgeClass: 'bg-green-100 text-green-800'
+            };
         case 'due-soon':
-            return { label: 'Due Soon', color: 'text-gray-600' };
+            return {
+                label: 'Expiring Soon',
+                color: 'text-yellow-800',
+                badgeClass: 'bg-yellow-100 text-yellow-800'
+            };
         case 'expired':
-            return { label: 'Expired', color: 'text-gray-400' };
+            return {
+                label: 'Expired',
+                color: 'text-red-800',
+                badgeClass: 'bg-red-100 text-red-800'
+            };
     }
 }
