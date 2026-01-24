@@ -75,24 +75,18 @@ function PaymentHistoryContent() {
                 updatedAt: memberResult.created_at ? new Date(memberResult.created_at) : new Date(),
             };
 
-            // Convert payments from snake_case to camelCase - CORRECT column names
+            // Convert payments from snake_case to camelCase
             const paymentsData: Payment[] = (paymentsResult || []).map((p: any) => ({
                 id: p.id,
                 memberId: p.member_id,
-                memberName: p.member_name || memberData.name,
-                memberPhone: p.member_phone || memberData.phone,
+                memberName: memberData.name,
+                memberPhone: memberData.phone,
                 amount: p.amount,
                 paymentDate: p.payment_date ? new Date(p.payment_date) : new Date(),
-                paymentMode: p.mode, // CORRECT: use 'mode' not 'payment_mode'
+                paymentMode: p.mode || 'cash',
                 planId: p.plan_id,
-                planName: p.plan_name || memberData.planName,
-                durationDays: p.duration_days || 0,
-                previousExpiryDate: p.previous_expiry_date ? new Date(p.previous_expiry_date) : new Date(),
-                newExpiryDate: p.new_expiry_date ? new Date(p.new_expiry_date) : new Date(),
+                planName: memberData.planName,
                 notes: p.notes || '',
-                receiptNumber: p.receipt_number || '',
-                createdAt: p.created_at ? new Date(p.created_at) : new Date(),
-                createdBy: p.created_by || '',
             }));
 
             setMember(memberData);
@@ -217,7 +211,6 @@ function PaymentHistoryContent() {
                                     <th className="px-6 py-4 text-left text-sm font-semibold text-black">Plan</th>
                                     <th className="px-6 py-4 text-left text-sm font-semibold text-black">Amount</th>
                                     <th className="px-6 py-4 text-left text-sm font-semibold text-black">Mode</th>
-                                    <th className="px-6 py-4 text-left text-sm font-semibold text-black">Expiry Change</th>
                                     <th className="px-6 py-4 text-left text-sm font-semibold text-black">Notes</th>
                                 </tr>
                             </thead>
@@ -228,27 +221,13 @@ function PaymentHistoryContent() {
                                             {formatDate(payment.paymentDate)}
                                         </td>
                                         <td className="px-6 py-4">
-                                            <div>
-                                                <p className="text-sm font-medium text-black">{payment.planName}</p>
-                                                <p className="text-sm text-gray-500">{payment.durationDays} days</p>
-                                            </div>
+                                            <p className="text-sm font-medium text-black">{payment.planName}</p>
                                         </td>
                                         <td className="px-6 py-4 text-sm font-medium text-black">
                                             ₹{payment.amount.toLocaleString('en-IN')}
                                         </td>
                                         <td className="px-6 py-4 text-sm text-gray-600">
                                             {formatPaymentMode(payment.paymentMode)}
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="text-sm">
-                                                <p className="text-gray-500">
-                                                    {formatDate(payment.previousExpiryDate)}
-                                                </p>
-                                                <p className="text-gray-400">↓</p>
-                                                <p className="text-black font-medium">
-                                                    {formatDate(payment.newExpiryDate)}
-                                                </p>
-                                            </div>
                                         </td>
                                         <td className="px-6 py-4 text-sm text-gray-600">
                                             {payment.notes || '—'}
