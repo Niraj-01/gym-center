@@ -53,11 +53,26 @@ function DashboardContent() {
                 .select('*')
                 .order('payment_date', { ascending: false });
 
+            // Fetch all members for lookup
+            const { data: allMembersData } = await supabase
+                .from('members')
+                .select('id, name, phone');
+
+            // Fetch all plans for lookup
+            const { data: plansData } = await supabase
+                .from('plans')
+                .select('id, name');
+
             if (membersError || paymentsError) {
                 throw membersError || paymentsError;
             }
 
             console.log('✅ Fetched members for dashboard:', membersData?.length);
+            console.log('✅ Fetched payments:', paymentsData?.length);
+
+            // Create lookup maps
+            const memberMap = new Map((allMembersData || []).map((m: any) => [m.id, m]));
+            const planMap = new Map((plansData || []).map((p: any) => [p.id, p]));
 
             // Calculate member stats
             const now = new Date();
@@ -75,25 +90,23 @@ function DashboardContent() {
                 { active: 0, dueSoon: 0, expired: 0 }
             );
 
-            // Convert payments from snake_case to camelCase
-            const payments: Payment[] = (paymentsData || []).map((p: any) => ({
-                id: p.id,
-                memberId: p.member_id,
-                memberName: p.member_name,
-                memberPhone: p.member_phone,
-                amount: p.amount,
-                paymentDate: new Date(p.payment_date),
-                paymentMode: p.mode,
-                planId: p.plan_id,
-                planName: p.plan_name,
-                durationDays: p.duration_days,
-                previousExpiryDate: new Date(p.previous_expiry_date),
-                newExpiryDate: new Date(p.new_expiry_date),
-                notes: p.notes,
-                receiptNumber: p.receipt_number,
-                createdAt: new Date(p.created_at),
-                createdBy: p.created_by,
-            }));
+            // Convert payments with manual lookup for member and plan names
+            const payments: Payment[] = (paymentsData || []).map((p: any) => {
+                const member = memberMap.get(p.member_id);
+                const plan = planMap.get(p.plan_id);
+                return {
+                    id: p.id,
+                    memberId: p.member_id,
+                    memberName: member?.name || 'Unknown',
+                    memberPhone: member?.phone || '',
+                    amount: p.amount,
+                    paymentDate: new Date(p.payment_date),
+                    paymentMode: p.mode || 'cash',
+                    planId: p.plan_id,
+                    planName: plan?.name || 'Unknown Plan',
+                    notes: p.notes,
+                };
+            });
 
             // Calculate revenue
             const thisMonthRevenue = payments

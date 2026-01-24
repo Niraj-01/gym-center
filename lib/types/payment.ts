@@ -1,31 +1,20 @@
 /**
- * Payment Types - Based on Phase 2 Firestore Schema
+ * Payment Types - Based on Supabase Schema
  */
 
 export type PaymentMode = 'cash' | 'upi' | 'card' | 'bank-transfer';
 
 export interface Payment {
-    id: string;                    // Firestore document ID
-    memberId: string;
-    memberName: string;            // Denormalized
-    memberPhone: string;           // Denormalized
-
+    id: number;
+    memberId: number;
+    memberName: string;            // Joined from members
+    memberPhone: string;           // Joined from members
     amount: number;
     paymentDate: Date;
     paymentMode: PaymentMode;
-
-    planId: string;
-    planName: string;              // Denormalized
-    durationDays: number;          // Denormalized from plan
-
-    previousExpiryDate: Date;      // Expiry before payment
-    newExpiryDate: Date;           // Expiry after payment
-
+    planId?: number;
+    planName?: string;             // Joined from plans
     notes?: string;
-    receiptNumber?: string;
-
-    createdAt: Date;
-    createdBy: string;             // Admin email
 }
 
 export interface PaymentFormData {

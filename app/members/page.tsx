@@ -207,6 +207,8 @@ function MembersListContent() {
                     description={`${members.length} total members`}
                     actionLabel="Add Member"
                     onAction={() => router.push('/members/add')}
+                    secondaryActionLabel="Scan Document"
+                    onSecondaryAction={() => router.push('/members/scan')}
                 />
 
                 {!loading && members.length > 0 && (

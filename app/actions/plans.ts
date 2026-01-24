@@ -9,7 +9,6 @@ export type Plan = {
     duration_days: number
     price: number
     is_active: boolean
-    created_at: string
 }
 
 export type CreatePlanInput = {
@@ -34,8 +33,8 @@ export async function getPlans(): Promise<{ data: Plan[] | null; error: string |
 
         const { data, error } = await supabase
             .from('plans')
-            .select('*')
-            .order('created_at', { ascending: false })
+            .select('id, name, duration_days, price, is_active')
+            .order('price', { ascending: true })
 
         if (error) {
             console.error('[getPlans] Supabase error:', error)
@@ -43,7 +42,7 @@ export async function getPlans(): Promise<{ data: Plan[] | null; error: string |
         }
 
         console.log('[getPlans] Success: Retrieved', data?.length || 0, 'plans')
-        return { data, error: null }
+        return { data: data as Plan[], error: null }
     } catch (err) {
         console.error('[getPlans] Unexpected error:', err)
         return { data: null, error: 'Failed to fetch plans' }
