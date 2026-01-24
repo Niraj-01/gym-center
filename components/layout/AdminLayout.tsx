@@ -26,10 +26,23 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             {/* Mobile Header & Menu */}
             <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200">
                 <div className="flex items-center justify-between px-4 py-3">
-                    <div className="flex items-center gap-3">
-                        <img src="/logo.png" alt="GymCentre" className="h-6" />
-                        <span className="font-semibold text-black">GymCentre</span>
-                    </div>
+                    <button
+                        onClick={() => { router.push('/dashboard'); setMobileMenuOpen(false); }}
+                        className="flex items-center gap-2 p-1 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+                        style={{ background: 'transparent', border: 'none', cursor: 'pointer', outline: 'none' }}
+                    >
+                        <img src="/logo.png" alt="GC" className="h-7 w-7 object-contain flex-shrink-0" />
+                        <span
+                            style={{
+                                fontSize: '16px',
+                                fontWeight: 600,
+                                color: '#000000',
+                                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+                            }}
+                        >
+                            GymCentre
+                        </span>
+                    </button>
                     <button
                         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                         className="p-2 text-gray-600 hover:text-black"
@@ -63,10 +76,16 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                             Members
                         </button>
                         <button
-                            onClick={() => { router.push('/members/scan'); setMobileMenuOpen(false); }}
+                            onClick={() => { router.push('/members/add'); setMobileMenuOpen(false); }}
                             className="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-gray-50"
                         >
-                            Scan Document
+                            Add Member
+                        </button>
+                        <button
+                            onClick={() => { router.push('/register/upload'); setMobileMenuOpen(false); }}
+                            className="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-gray-50"
+                        >
+                            Digitize Register
                         </button>
                         <button
                             onClick={() => { router.push('/plans'); setMobileMenuOpen(false); }}

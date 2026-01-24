@@ -275,6 +275,10 @@ export async function saveMemberFromOCR(
         planId: number;
         startDate: string;
         expiryDate: string;
+        // Extended fields
+        aadhaarNumber?: string | null;
+        panNumber?: string | null;
+        notes?: string | null;
     },
     userId: string
 ): Promise<{ success: boolean; memberId?: number; error?: string }> {
@@ -289,18 +293,22 @@ export async function saveMemberFromOCR(
             };
         }
 
-        // Check for duplicate
+        // Clean and format phone number
+        const cleanPhone = memberData.phone.replace(/\D/g, '').slice(-10);
+        const formattedPhone = cleanPhone.startsWith('+91') ? cleanPhone : `+91 ${cleanPhone}`;
+
+        // Check for duplicate by phone
         const { data: existing } = await supabase
             .from('members')
             .select('id, name')
-            .or(`phone.eq.${memberData.phone},email.eq.${memberData.email || ''}`)
+            .ilike('phone', `%${cleanPhone}%`)
             .limit(1)
-            .single();
+            .maybeSingle();
 
         if (existing) {
             return {
                 success: false,
-                error: `Member with this phone or email already exists: ${existing.name}`,
+                error: `Member with this phone number already exists: ${existing.name}`,
             };
         }
 
@@ -311,21 +319,32 @@ export async function saveMemberFromOCR(
             .eq('id', memberData.planId)
             .single();
 
+        // Build insert data
+        const insertData: Record<string, unknown> = {
+            name: memberData.name,
+            phone: formattedPhone,
+            email: memberData.email || null,
+            plan_id: memberData.planId,
+            plan: plan?.name || 'Unknown',
+            start_date: memberData.startDate,
+            expiry_date: memberData.expiryDate,
+            ocr_scanned: true,
+            ocr_confidence_score: memberData.overallConfidence || 0,
+            scanned_at: new Date().toISOString(),
+        };
+
+        // Add optional fields if provided
+        if (memberData.gender) insertData.gender = memberData.gender;
+        if (memberData.dateOfBirth) insertData.date_of_birth = memberData.dateOfBirth;
+        if (memberData.address) insertData.address = memberData.address;
+        if (memberData.aadhaarNumber) insertData.aadhaar_number = memberData.aadhaarNumber;
+        if (memberData.panNumber) insertData.pan_number = memberData.panNumber;
+        if (memberData.notes) insertData.notes = memberData.notes;
+
         // Insert new member
         const { data: newMember, error } = await supabase
             .from('members')
-            .insert({
-                name: memberData.name,
-                phone: memberData.phone,
-                email: memberData.email || null,
-                plan_id: memberData.planId,
-                plan: plan?.name || 'Unknown',
-                start_date: memberData.startDate,
-                expiry_date: memberData.expiryDate,
-                ocr_scanned: true,
-                ocr_confidence_score: memberData.overallConfidence || 0,
-                scanned_at: new Date().toISOString(),
-            })
+            .insert(insertData)
             .select('id')
             .single();
 
