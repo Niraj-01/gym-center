@@ -63,10 +63,22 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                             Members
                         </button>
                         <button
+                            onClick={() => { router.push('/members/scan'); setMobileMenuOpen(false); }}
+                            className="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-gray-50"
+                        >
+                            Scan Document
+                        </button>
+                        <button
                             onClick={() => { router.push('/plans'); setMobileMenuOpen(false); }}
                             className="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-gray-50"
                         >
                             Plans
+                        </button>
+                        <button
+                            onClick={() => { router.push('/settings'); setMobileMenuOpen(false); }}
+                            className="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-gray-50"
+                        >
+                            Settings
                         </button>
                         <div className="border-t border-gray-100 mt-2 pt-2">
                             <button

@@ -159,7 +159,7 @@ function DashboardContent() {
 
     return (
         <AdminLayout>
-            <div className="max-w-7xl mx-auto px-6 py-8">
+            <div className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-8">
                 <PageHeader
                     title="Dashboard"
                     description={`${GYM_NAME} management overview`}
@@ -176,38 +176,38 @@ function DashboardContent() {
                     <>
                         {/* Member Stats Cards */}
                         <div className="mb-8">
-                            <h2 className="text-lg font-medium text-black mb-6">Member Statistics</h2>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <h2 className="text-base sm:text-lg font-medium text-black mb-4 sm:mb-6">Member Statistics</h2>
+                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                                 {/* Total Members */}
-                                <div className="p-6 border border-gray-200 rounded-xl">
+                                <div className="p-4 sm:p-6 border border-gray-200 rounded-xl">
                                     <p className="text-sm text-gray-500">Total Members</p>
-                                    <p className="text-3xl font-semibold text-black mt-2">
+                                    <p className="text-2xl sm:text-3xl font-semibold text-black mt-2">
                                         {stats?.totalMembers || 0}
                                     </p>
                                 </div>
 
                                 {/* Active Members */}
-                                <div className="p-6 border border-gray-200 rounded-xl">
+                                <div className="p-4 sm:p-6 border border-gray-200 rounded-xl">
                                     <p className="text-sm text-gray-500">Active</p>
-                                    <p className="text-3xl font-semibold text-green-600 mt-2">
+                                    <p className="text-2xl sm:text-3xl font-semibold text-green-600 mt-2">
                                         {stats?.activeMembers || 0}
                                     </p>
                                     <p className="text-xs text-gray-500 mt-1">7+ days remaining</p>
                                 </div>
 
                                 {/* Expiring Soon */}
-                                <div className="p-6 border border-gray-200 rounded-xl">
+                                <div className="p-4 sm:p-6 border border-gray-200 rounded-xl">
                                     <p className="text-sm text-gray-500">Expiring Soon</p>
-                                    <p className="text-3xl font-semibold text-yellow-600 mt-2">
+                                    <p className="text-2xl sm:text-3xl font-semibold text-yellow-600 mt-2">
                                         {stats?.dueSoonMembers || 0}
                                     </p>
                                     <p className="text-xs text-gray-500 mt-1">Within 7 days</p>
                                 </div>
 
                                 {/* Expired */}
-                                <div className="p-6 border border-gray-200 rounded-xl">
+                                <div className="p-4 sm:p-6 border border-gray-200 rounded-xl">
                                     <p className="text-sm text-gray-500">Expired</p>
-                                    <p className="text-3xl font-semibold text-red-600 mt-2">
+                                    <p className="text-2xl sm:text-3xl font-semibold text-red-600 mt-2">
                                         {stats?.expiredMembers || 0}
                                     </p>
                                     <p className="text-xs text-gray-500 mt-1">Need renewal</p>
@@ -218,7 +218,7 @@ function DashboardContent() {
                         {/* Revenue Cards */}
                         <div className="mb-8">
                             <h2 className="text-lg font-medium text-black mb-6">Revenue</h2>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-2 gap-3 sm:gap-4">
                                 {/* This Month Revenue */}
                                 <div className="p-6 border border-gray-200 rounded-xl">
                                     <p className="text-sm text-gray-500">This Month</p>

@@ -145,7 +145,7 @@ function AddMemberFormContent() {
         <div className="min-h-screen bg-white">
             {/* Header */}
             <header className="bg-white border-b border-gray-200">
-                <div className="max-w-3xl mx-auto px-6 py-6">
+                <div className="max-w-3xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
                     <button
                         onClick={() => router.push('/members')}
                         className="text-sm text-gray-600 hover:text-black transition-colors mb-4"
@@ -157,7 +157,7 @@ function AddMemberFormContent() {
             </header>
 
             {/* Form */}
-            <main className="max-w-3xl mx-auto px-6 py-8">
+            <main className="max-w-3xl mx-auto px-3 sm:px-6 py-4 sm:py-8">
                 <form onSubmit={handleSubmit} className="space-y-8">
                     {/* Basic Information */}
                     <div className="border-b border-gray-200 pb-8">
@@ -333,11 +333,11 @@ function AddMemberFormContent() {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex items-center gap-4 pt-6 border-t border-gray-200">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 pt-6 border-t border-gray-200">
                         <button
                             type="submit"
                             disabled={submitting || plans.length === 0}
-                            className="px-8 py-3 bg-black text-white hover:bg-gray-800 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full sm:w-auto px-8 py-3 bg-black text-white hover:bg-gray-800 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {submitting ? 'Adding Member...' : 'Add Member'}
                         </button>
@@ -345,7 +345,7 @@ function AddMemberFormContent() {
                             type="button"
                             onClick={() => router.push('/members')}
                             disabled={submitting}
-                            className="px-8 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors font-medium disabled:opacity-50"
+                            className="w-full sm:w-auto px-8 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors font-medium disabled:opacity-50"
                         >
                             Cancel
                         </button>

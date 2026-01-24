@@ -201,7 +201,7 @@ function ScanMemberContent() {
 
     return (
         <AdminLayout>
-            <div className="p-6 max-w-6xl mx-auto">
+            <div className="px-3 sm:p-6 py-4 max-w-6xl mx-auto">
                 {/* Header */}
                 <div className="mb-6">
                     <h1 className="text-2xl font-semibold text-gray-900">

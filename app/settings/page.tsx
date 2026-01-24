@@ -69,7 +69,7 @@ function SettingsContent() {
 
     return (
         <AdminLayout>
-            <div className="p-6 max-w-2xl mx-auto">
+            <div className="px-3 sm:p-6 py-4 sm:py-6 max-w-2xl mx-auto">
                 {/* Header */}
                 <div className="mb-8 pb-6 border-b border-gray-200">
                     <h1 className="text-2xl font-semibold text-gray-900">Settings</h1>
@@ -178,11 +178,11 @@ function SettingsContent() {
                             )}
                         </div>
 
-                        <div className="flex gap-3 pt-4">
+                        <div className="flex flex-col sm:flex-row gap-3 pt-4">
                             <button
                                 type="submit"
                                 disabled={isLoading || !currentPassword || !newPassword || !confirmPassword}
-                                className="flex-1 px-6 py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                                className="w-full sm:flex-1 px-6 py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition"
                             >
                                 {isLoading ? (
                                     <span className="flex items-center justify-center gap-2">
@@ -199,7 +199,7 @@ function SettingsContent() {
                             <button
                                 type="button"
                                 onClick={() => router.push('/dashboard')}
-                                className="px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition"
+                                className="w-full sm:w-auto px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition"
                             >
                                 Cancel
                             </button>
