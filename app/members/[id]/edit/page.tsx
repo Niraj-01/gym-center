@@ -2,6 +2,8 @@
 
 /**
  * Edit Member Form - Update existing member
+ * 
+ * Phase 4: Replaced alert() with toast notifications, console with logger
  */
 
 import { useState, useEffect } from 'react';
@@ -10,6 +12,9 @@ import { AuthGuard } from '@/components/auth/AuthGuard';
 import { Member, MemberFormData } from '@/lib/types/member';
 import { Plan } from '@/lib/types/plan';
 import { createClient } from '@/lib/supabase/client';
+import { useToast } from '@/lib/hooks/useToast';
+import { logger } from '@/lib/utils/logger';
+
 const supabase = createClient();
 
 
@@ -17,6 +22,7 @@ function EditMemberFormContent() {
     const router = useRouter();
     const params = useParams();
     const memberId = params.id as string;
+    const toast = useToast();
 
     const [member, setMember] = useState<Member | null>(null);
     const [plans, setPlans] = useState<Plan[]>([]);
@@ -51,13 +57,13 @@ function EditMemberFormContent() {
                 .eq('is_active', true);
 
             if (memberError || !memberResult) {
-                console.error('❌ Error loading member:', memberError);
-                alert('Member not found');
+                logger.error('Error loading member:', memberError);
+                toast.error('Member not found');
                 router.push('/members');
                 return;
             }
 
-            console.log('✅ Loaded member:', memberResult.name);
+            logger.success('Loaded member:', memberResult.name);
 
             // Convert from snake_case to camelCase - using CORRECT column names
             const memberData: Member = {
@@ -103,8 +109,8 @@ function EditMemberFormContent() {
                 notes: memberData.notes || '',
             });
         } catch (error) {
-            console.error('Error loading data:', error);
-            alert('Failed to load member data');
+            logger.error('Error loading data:', error);
+            toast.error('Failed to load member data');
         } finally {
             setLoading(false);
         }
@@ -114,7 +120,7 @@ function EditMemberFormContent() {
         e.preventDefault();
 
         if (!formData.name || !formData.phone || !formData.planId) {
-            alert('Please fill in all required fields');
+            toast.warning('Please fill in all required fields');
             return;
         }
 
@@ -154,12 +160,13 @@ function EditMemberFormContent() {
             }
 
             router.push(`/members/${memberId}`);
+            toast.success('Member updated successfully');
         } catch (error) {
-            console.error('Error updating member:', error);
+            logger.error('Error updating member:', error);
             const errorMessage = error instanceof Error
                 ? error.message
                 : 'Unknown error occurred';
-            alert(`Failed to update member: ${errorMessage}`);
+            toast.error(`Failed to update member: ${errorMessage}`);
         } finally {
             setSubmitting(false);
         }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { MemberAuthProvider } from "@/contexts/MemberAuthContext";
+import { Toaster } from "@/components/ui/Toaster";
 import { PRODUCT_NAME } from "@/lib/config";
 
 export const metadata: Metadata = {
@@ -34,9 +35,11 @@ export default function RootLayout({
         <AuthProvider>
           <MemberAuthProvider>
             {children}
+            <Toaster />
           </MemberAuthProvider>
         </AuthProvider>
       </body>
     </html>
   );
 }
+

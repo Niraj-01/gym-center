@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { logger } from '@/lib/utils/logger'
 
 export type Payment = {
     id: number
@@ -30,14 +31,14 @@ export async function getPayments(): Promise<{ data: Payment[] | null; error: st
             .order('payment_date', { ascending: false })
 
         if (error) {
-            console.error('[getPayments] Supabase error:', error)
+            logger.error('[getPayments] Supabase error:', error)
             return { data: null, error: error.message }
         }
 
-        console.log('[getPayments] Success: Retrieved', data?.length || 0, 'payments')
+        logger.log('[getPayments] Success: Retrieved', data?.length || 0, 'payments')
         return { data, error: null }
     } catch (err) {
-        console.error('[getPayments] Unexpected error:', err)
+        logger.error('[getPayments] Unexpected error:', err)
         return { data: null, error: 'Failed to fetch payments' }
     }
 }
@@ -54,14 +55,14 @@ export async function getMemberPayments(memberId: number): Promise<{ data: Payme
             .order('payment_date', { ascending: false })
 
         if (error) {
-            console.error(`[getMemberPayments] Supabase error for member ${memberId}:`, error)
+            logger.error(`[getMemberPayments] Supabase error for member ${memberId}:`, error)
             return { data: null, error: error.message }
         }
 
-        console.log('[getMemberPayments] Success: Retrieved', data?.length || 0, 'payments for member', memberId)
+        logger.log('[getMemberPayments] Success: Retrieved', data?.length || 0, 'payments for member', memberId)
         return { data, error: null }
     } catch (err) {
-        console.error('[getMemberPayments] Unexpected error:', err)
+        logger.error('[getMemberPayments] Unexpected error:', err)
         return { data: null, error: 'Failed to fetch member payments' }
     }
 }
@@ -83,17 +84,17 @@ export async function createPayment(input: CreatePaymentInput): Promise<{ data: 
             .single()
 
         if (error) {
-            console.error('[createPayment] Supabase error:', error)
+            logger.error('[createPayment] Supabase error:', error)
             return { data: null, error: error.message }
         }
 
-        console.log('[createPayment] Success: Created payment', data.id)
+        logger.success('[createPayment] Success: Created payment', data.id)
         revalidatePath('/members')
         revalidatePath('/payments')
         revalidatePath('/')
         return { data, error: null }
     } catch (err) {
-        console.error('[createPayment] Unexpected error:', err)
+        logger.error('[createPayment] Unexpected error:', err)
         return { data: null, error: 'Failed to create payment' }
     }
 }
@@ -112,7 +113,7 @@ export async function getMonthlyRevenue(): Promise<{ data: number; error: string
             .select('amount, payment_date')
 
         if (error) {
-            console.error('[getMonthlyRevenue] Supabase error:', error)
+            logger.error('[getMonthlyRevenue] Supabase error:', error)
             return { data: 0, error: error.message }
         }
 
@@ -125,10 +126,10 @@ export async function getMonthlyRevenue(): Promise<{ data: number; error: string
             })
             .reduce((sum, p) => sum + (p.amount || 0), 0) || 0
 
-        console.log('[getMonthlyRevenue] Success: Monthly revenue', monthlyRevenue)
+        logger.log('[getMonthlyRevenue] Success: Monthly revenue', monthlyRevenue)
         return { data: monthlyRevenue, error: null }
     } catch (err) {
-        console.error('[getMonthlyRevenue] Unexpected error:', err)
+        logger.error('[getMonthlyRevenue] Unexpected error:', err)
         return { data: 0, error: 'Failed to calculate monthly revenue' }
     }
 }
@@ -143,16 +144,16 @@ export async function getTotalRevenue(): Promise<{ data: number; error: string |
             .select('amount')
 
         if (error) {
-            console.error('[getTotalRevenue] Supabase error:', error)
+            logger.error('[getTotalRevenue] Supabase error:', error)
             return { data: 0, error: error.message }
         }
 
         const totalRevenue = payments?.reduce((sum, p) => sum + (p.amount || 0), 0) || 0
 
-        console.log('[getTotalRevenue] Success: Total revenue', totalRevenue)
+        logger.log('[getTotalRevenue] Success: Total revenue', totalRevenue)
         return { data: totalRevenue, error: null }
     } catch (err) {
-        console.error('[getTotalRevenue] Unexpected error:', err)
+        logger.error('[getTotalRevenue] Unexpected error:', err)
         return { data: 0, error: 'Failed to calculate total revenue' }
     }
 }

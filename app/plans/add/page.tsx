@@ -2,6 +2,8 @@
 
 /**
  * Add Plan Form - Create new membership plan
+ * 
+ * Phase 4: Replaced alert() with toast notifications, console with logger
  */
 
 import { useState } from 'react';
@@ -9,11 +11,15 @@ import { useRouter } from 'next/navigation';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { PlanFormData } from '@/lib/types/plan';
 import { createClient } from '@/lib/supabase/client';
+import { useToast } from '@/lib/hooks/useToast';
+import { logger } from '@/lib/utils/logger';
+
 const supabase = createClient();
 
 
 function AddPlanFormContent() {
     const router = useRouter();
+    const toast = useToast();
     const [submitting, setSubmitting] = useState(false);
 
     const [formData, setFormData] = useState<PlanFormData>({
@@ -27,17 +33,17 @@ function AddPlanFormContent() {
         e.preventDefault();
 
         if (!formData.name || formData.duration <= 0 || formData.price <= 0) {
-            alert('Please fill in all required fields with valid values');
+            toast.warning('Please fill in all required fields with valid values');
             return;
         }
 
         if (formData.name.length < 3 || formData.name.length > 50) {
-            alert('Plan name must be between 3 and 50 characters');
+            toast.warning('Plan name must be between 3 and 50 characters');
             return;
         }
 
         if (formData.duration < 1 || formData.duration > 365) {
-            alert('Duration must be between 1 and 365 days');
+            toast.warning('Duration must be between 1 and 365 days');
             return;
         }
 
@@ -62,12 +68,13 @@ function AddPlanFormContent() {
             }
 
             router.push('/plans');
+            toast.success('Plan created successfully');
         } catch (error) {
-            console.error('Error creating plan:', error);
+            logger.error('Error creating plan:', error);
             const errorMessage = error instanceof Error
                 ? error.message
                 : 'Unknown error occurred';
-            alert(`Failed to create plan: ${errorMessage}`);
+            toast.error(`Failed to create plan: ${errorMessage}`);
         } finally {
             setSubmitting(false);
         }

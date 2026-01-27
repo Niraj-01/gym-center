@@ -2,6 +2,8 @@
 
 /**
  * Plans List Page - Manage membership plans
+ * 
+ * Phase 4: Replaced alert() with toast notifications, console with logger
  */
 
 import { useState, useEffect } from 'react';
@@ -11,11 +13,15 @@ import { AdminLayout } from '@/components/layout/AdminLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Plan } from '@/lib/types/plan';
 import { createClient } from '@/lib/supabase/client';
+import { useToast } from '@/lib/hooks/useToast';
+import { logger } from '@/lib/utils/logger';
+
 const supabase = createClient();
 
 
 function PlansListContent() {
     const router = useRouter();
+    const toast = useToast();
     const [plans, setPlans] = useState<Plan[]>([]);
     const [loading, setLoading] = useState(true);
     const [showInactive, setShowInactive] = useState(false);
@@ -50,7 +56,8 @@ function PlansListContent() {
 
             setPlans(plansData);
         } catch (error) {
-            console.error('Error loading plans:', error);
+            logger.error('Error loading plans:', error);
+            toast.error('Failed to load plans');
         } finally {
             setLoading(false);
         }
@@ -91,9 +98,10 @@ function PlansListContent() {
             }
 
             await loadPlans();
+            toast.success(`Plan "${name}" has been ${action}d`);
         } catch (error) {
-            console.error('Error toggling plan status:', error);
-            alert('Failed to update plan status');
+            logger.error('Error toggling plan status:', error);
+            toast.error('Failed to update plan status');
         } finally {
             setTogglingId(null);
         }

@@ -82,12 +82,6 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                             Add Member
                         </button>
                         <button
-                            onClick={() => { router.push('/register/upload'); setMobileMenuOpen(false); }}
-                            className="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-gray-50"
-                        >
-                            Digitize Register
-                        </button>
-                        <button
                             onClick={() => { router.push('/plans'); setMobileMenuOpen(false); }}
                             className="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-gray-50"
                         >

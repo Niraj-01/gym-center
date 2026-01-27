@@ -120,26 +120,16 @@ class GoogleVisionService {
     }
 
     /**
-     * Mock response for development/testing without API key
+     * No mock response - return error if API key not configured
+     * This prevents fake data from being shown to users
      */
     private getMockResponse(startTime: number): OCRResult {
-        const mockText = `GOVERNMENT OF INDIA
-Aadhaar - आधार
-Name: Rajesh Kumar Sharma
-DOB: 15/08/1990
-Gender: Male
-Address: 123, MG Road, Sector 15
-Bangalore, Karnataka 560001
-Aadhaar No: 1234 5678 9012
-Mobile: 9876543210
-Email: rajesh.sharma@email.com`;
-
+        console.error('[GoogleVision] API key not configured - cannot process');
         return {
-            success: true,
-            fullText: mockText,
-            words: mockText.split(/\s+/).map(word => ({ text: word })),
+            success: false,
+            error: 'NO_API_KEY',
+            message: 'Google Cloud Vision API key not configured. Please use Gemini AI instead.',
             processingTime: Date.now() - startTime,
-            textLength: mockText.length,
         };
     }
 }

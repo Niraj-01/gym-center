@@ -69,7 +69,7 @@ export function ResultsForm({
                         type="text"
                         value={formData.name}
                         onChange={(e) => onFieldChange('name', e.target.value)}
-                        className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-transparent"
+                        className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-transparent text-gray-900 placeholder-gray-500"
                         placeholder="Enter full name"
                     />
                 </div>
@@ -87,7 +87,7 @@ export function ResultsForm({
                             type="tel"
                             value={formData.phone}
                             onChange={(e) => onFieldChange('phone', e.target.value.replace(/\D/g, ''))}
-                            className="flex-1 px-4 py-2.5 border border-gray-200 rounded-r-xl focus:ring-2 focus:ring-black focus:border-transparent"
+                            className="flex-1 px-4 py-2.5 border border-gray-200 rounded-r-xl focus:ring-2 focus:ring-black focus:border-transparent text-gray-900 placeholder-gray-500"
                             placeholder="9876543210"
                             maxLength={10}
                         />
@@ -103,7 +103,7 @@ export function ResultsForm({
                         type="email"
                         value={formData.email}
                         onChange={(e) => onFieldChange('email', e.target.value)}
-                        className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-transparent"
+                        className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-transparent text-gray-900 placeholder-gray-500"
                         placeholder="email@example.com"
                     />
                 </div>
@@ -116,7 +116,7 @@ export function ResultsForm({
                     <select
                         value={formData.gender}
                         onChange={(e) => onFieldChange('gender', e.target.value)}
-                        className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-transparent bg-white"
+                        className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-transparent bg-white text-gray-900"
                     >
                         <option value="">Select gender</option>
                         <option value="Male">Male</option>
@@ -133,7 +133,7 @@ export function ResultsForm({
                     <select
                         value={formData.planId}
                         onChange={(e) => onFieldChange('planId', e.target.value)}
-                        className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-transparent bg-white"
+                        className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-transparent bg-white text-gray-900"
                     >
                         {plans.map((plan) => (
                             <option key={plan.id} value={plan.id}>
@@ -152,7 +152,7 @@ export function ResultsForm({
                         type="date"
                         value={formData.startDate}
                         onChange={(e) => onFieldChange('startDate', e.target.value)}
-                        className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-transparent"
+                        className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-transparent text-gray-900"
                     />
                 </div>
 

@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { logger } from '@/lib/utils/logger'
 
 export type Plan = {
     id: number
@@ -37,14 +38,14 @@ export async function getPlans(): Promise<{ data: Plan[] | null; error: string |
             .order('price', { ascending: true })
 
         if (error) {
-            console.error('[getPlans] Supabase error:', error)
+            logger.error('[getPlans] Supabase error:', error)
             return { data: null, error: error.message }
         }
 
-        console.log('[getPlans] Success: Retrieved', data?.length || 0, 'plans')
+        logger.log('[getPlans] Success: Retrieved', data?.length || 0, 'plans')
         return { data: data as Plan[], error: null }
     } catch (err) {
-        console.error('[getPlans] Unexpected error:', err)
+        logger.error('[getPlans] Unexpected error:', err)
         return { data: null, error: 'Failed to fetch plans' }
     }
 }
@@ -61,14 +62,14 @@ export async function getActivePlans(): Promise<{ data: Plan[] | null; error: st
             .order('price', { ascending: true })
 
         if (error) {
-            console.error('[getActivePlans] Supabase error:', error)
+            logger.error('[getActivePlans] Supabase error:', error)
             return { data: null, error: error.message }
         }
 
-        console.log('[getActivePlans] Success: Retrieved', data?.length || 0, 'active plans')
+        logger.log('[getActivePlans] Success: Retrieved', data?.length || 0, 'active plans')
         return { data, error: null }
     } catch (err) {
-        console.error('[getActivePlans] Unexpected error:', err)
+        logger.error('[getActivePlans] Unexpected error:', err)
         return { data: null, error: 'Failed to fetch active plans' }
     }
 }
@@ -85,14 +86,14 @@ export async function getPlan(id: number): Promise<{ data: Plan | null; error: s
             .single()
 
         if (error) {
-            console.error(`[getPlan] Supabase error for id ${id}:`, error)
+            logger.error(`[getPlan] Supabase error for id ${id}:`, error)
             return { data: null, error: error.message }
         }
 
-        console.log('[getPlan] Success: Retrieved plan', id)
+        logger.log('[getPlan] Success: Retrieved plan', id)
         return { data, error: null }
     } catch (err) {
-        console.error('[getPlan] Unexpected error:', err)
+        logger.error('[getPlan] Unexpected error:', err)
         return { data: null, error: 'Failed to fetch plan' }
     }
 }
@@ -114,16 +115,16 @@ export async function createPlan(input: CreatePlanInput): Promise<{ data: Plan |
             .single()
 
         if (error) {
-            console.error('[createPlan] Supabase error:', error)
+            logger.error('[createPlan] Supabase error:', error)
             return { data: null, error: error.message }
         }
 
-        console.log('[createPlan] Success: Created plan', data.id)
+        logger.success('[createPlan] Success: Created plan', data.id)
         revalidatePath('/plans')
         revalidatePath('/')
         return { data, error: null }
     } catch (err) {
-        console.error('[createPlan] Unexpected error:', err)
+        logger.error('[createPlan] Unexpected error:', err)
         return { data: null, error: 'Failed to create plan' }
     }
 }
@@ -143,16 +144,16 @@ export async function updatePlan(input: UpdatePlanInput): Promise<{ data: Plan |
             .single()
 
         if (error) {
-            console.error(`[updatePlan] Supabase error for id ${id}:`, error)
+            logger.error(`[updatePlan] Supabase error for id ${id}:`, error)
             return { data: null, error: error.message }
         }
 
-        console.log('[updatePlan] Success: Updated plan', id)
+        logger.success('[updatePlan] Success: Updated plan', id)
         revalidatePath('/plans')
         revalidatePath('/')
         return { data, error: null }
     } catch (err) {
-        console.error('[updatePlan] Unexpected error:', err)
+        logger.error('[updatePlan] Unexpected error:', err)
         return { data: null, error: 'Failed to update plan' }
     }
 }
@@ -168,16 +169,16 @@ export async function deletePlan(id: number): Promise<{ success: boolean; error:
             .eq('id', id)
 
         if (error) {
-            console.error(`[deletePlan] Supabase error for id ${id}:`, error)
+            logger.error(`[deletePlan] Supabase error for id ${id}:`, error)
             return { success: false, error: error.message }
         }
 
-        console.log('[deletePlan] Success: Deleted plan', id)
+        logger.success('[deletePlan] Success: Deleted plan', id)
         revalidatePath('/plans')
         revalidatePath('/')
         return { success: true, error: null }
     } catch (err) {
-        console.error('[deletePlan] Unexpected error:', err)
+        logger.error('[deletePlan] Unexpected error:', err)
         return { success: false, error: 'Failed to delete plan' }
     }
 }
@@ -208,16 +209,16 @@ export async function togglePlanStatus(id: number): Promise<{ data: Plan | null;
             .single()
 
         if (error) {
-            console.error(`[togglePlanStatus] Update error for id ${id}:`, error)
+            logger.error(`[togglePlanStatus] Update error for id ${id}:`, error)
             return { data: null, error: error.message }
         }
 
-        console.log('[togglePlanStatus] Success: Toggled plan', id, 'to', data.is_active)
+        logger.success('[togglePlanStatus] Success: Toggled plan', id, 'to', data.is_active)
         revalidatePath('/plans')
         revalidatePath('/')
         return { data, error: null }
     } catch (err) {
-        console.error('[togglePlanStatus] Unexpected error:', err)
+        logger.error('[togglePlanStatus] Unexpected error:', err)
         return { data: null, error: 'Failed to toggle plan status' }
     }
 }

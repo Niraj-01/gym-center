@@ -2,6 +2,8 @@
 
 /**
  * Record Payment Form - Extend member's membership
+ * 
+ * Phase 4: Replaced alert() with toast notifications, console with logger
  */
 
 import { useState, useEffect } from 'react';
@@ -12,6 +14,9 @@ import { Member } from '@/lib/types/member';
 import { Plan } from '@/lib/types/plan';
 import { PaymentFormData, PaymentMode } from '@/lib/types/payment';
 import { createClient } from '@/lib/supabase/client';
+import { useToast } from '@/lib/hooks/useToast';
+import { logger } from '@/lib/utils/logger';
+
 const supabase = createClient();
 
 
@@ -32,6 +37,7 @@ function RecordPaymentFormContent() {
     const params = useParams();
     const { user } = useAuth();
     const memberId = params.id as string;
+    const toast = useToast();
 
     const [member, setMember] = useState<Member | null>(null);
     const [plans, setPlans] = useState<Plan[]>([]);
@@ -85,13 +91,13 @@ function RecordPaymentFormContent() {
                 .eq('is_active', true);
 
             if (memberError || !memberResult) {
-                console.error('❌ Error loading member:', memberError);
-                alert('Member not found');
+                logger.error('Error loading member:', memberError);
+                toast.error('Member not found');
                 router.push('/members');
                 return;
             }
 
-            console.log('✅ Loaded member for payment:', memberResult.name);
+            logger.success('Loaded member for payment:', memberResult.name);
 
             // Convert member from snake_case to camelCase - CORRECT column names
             const memberData: Member = {
@@ -141,8 +147,8 @@ function RecordPaymentFormContent() {
                 }));
             }
         } catch (error) {
-            console.error('Error loading data:', error);
-            alert('Failed to load data');
+            logger.error('Error loading data:', error);
+            toast.error('Failed to load data');
         } finally {
             setLoading(false);
         }
@@ -161,17 +167,17 @@ function RecordPaymentFormContent() {
         e.preventDefault();
 
         if (!formData.planId || formData.amount <= 0) {
-            alert('Please fill in all required fields');
+            toast.warning('Please fill in all required fields');
             return;
         }
 
         if (formData.paymentDate > new Date()) {
-            alert('Payment date cannot be in the future');
+            toast.warning('Payment date cannot be in the future');
             return;
         }
 
         if (!user?.email || !member) {
-            alert('User email or member not found');
+            toast.error('User email or member not found');
             return;
         }
 
@@ -202,11 +208,11 @@ function RecordPaymentFormContent() {
                 });
 
             if (paymentError) {
-                console.error('❌ Payment insert error:', paymentError);
+                logger.error('Payment insert error:', paymentError);
                 throw paymentError;
             }
 
-            console.log('✅ Payment created');
+            logger.success('Payment created');
 
             // Update member's membership in Supabase - using CORRECT column names
             const { error: memberError } = await supabase
@@ -223,9 +229,10 @@ function RecordPaymentFormContent() {
             }
 
             router.push(`/members/${memberId}`);
+            toast.success('Payment recorded successfully');
         } catch (error) {
-            console.error('Error creating payment:', error);
-            alert('Failed to record payment');
+            logger.error('Error creating payment:', error);
+            toast.error('Failed to record payment');
         } finally {
             setSubmitting(false);
         }

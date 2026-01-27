@@ -2,6 +2,9 @@
 
 /**
  * Dashboard - Main analytics and stats view
+ * 
+ * Optimized: Uses server actions with combined queries instead of 4 separate calls.
+ * Supabase client is created inside the server action, not at module level.
  */
 
 import { useState, useEffect } from 'react';
@@ -9,28 +12,15 @@ import { useRouter } from 'next/navigation';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { Payment } from '@/lib/types/payment';
-import { getMemberStatus } from '@/lib/types/member';
 import { GYM_NAME } from '@/lib/config';
-import { createClient } from '@/lib/supabase/client';
-const supabase = createClient();
-
-
-// Local interface for dashboard stats
-interface DashboardStats {
-    totalMembers: number;
-    activeMembers: number;
-    dueSoonMembers: number;
-    expiredMembers: number;
-    thisMonthRevenue: number;
-    totalRevenue: number;
-}
+import { getDashboardData, DashboardStats, DashboardPayment } from '@/app/actions/dashboard';
 
 function DashboardContent() {
     const router = useRouter();
     const [stats, setStats] = useState<DashboardStats | null>(null);
-    const [recentPayments, setRecentPayments] = useState<Payment[]>([]);
+    const [recentPayments, setRecentPayments] = useState<DashboardPayment[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         loadDashboardData();
@@ -39,99 +29,21 @@ function DashboardContent() {
     const loadDashboardData = async () => {
         try {
             setLoading(true);
+            setError(null);
 
-            // Fetch all members with plans from Supabase
-            const { data: membersData, error: membersError } = await supabase
-                .from('members')
-                .select(`
-                    id, expiry_date
-                `);
+            // Single optimized call that fetches all dashboard data
+            const result = await getDashboardData();
 
-            // Fetch all payments from Supabase
-            const { data: paymentsData, error: paymentsError } = await supabase
-                .from('payments')
-                .select('*')
-                .order('payment_date', { ascending: false });
-
-            // Fetch all members for lookup
-            const { data: allMembersData } = await supabase
-                .from('members')
-                .select('id, name, phone');
-
-            // Fetch all plans for lookup
-            const { data: plansData } = await supabase
-                .from('plans')
-                .select('id, name');
-
-            if (membersError || paymentsError) {
-                throw membersError || paymentsError;
+            if (result.error) {
+                setError(result.error);
+                console.error('Dashboard error:', result.error);
+            } else if (result.data) {
+                setStats(result.data.stats);
+                setRecentPayments(result.data.recentPayments);
             }
-
-            console.log('✅ Fetched members for dashboard:', membersData?.length);
-            console.log('✅ Fetched payments:', paymentsData?.length);
-
-            // Create lookup maps
-            const memberMap = new Map((allMembersData || []).map((m: any) => [m.id, m]));
-            const planMap = new Map((plansData || []).map((p: any) => [p.id, p]));
-
-            // Calculate member stats
-            const now = new Date();
-            const thisMonth = now.getMonth();
-            const thisYear = now.getFullYear();
-
-            const memberStats = (membersData || []).reduce(
-                (acc, member: any) => {
-                    const status = getMemberStatus(new Date(member.expiry_date));
-                    if (status === 'active') acc.active++;
-                    else if (status === 'due-soon') acc.dueSoon++;
-                    else acc.expired++;
-                    return acc;
-                },
-                { active: 0, dueSoon: 0, expired: 0 }
-            );
-
-            // Convert payments with manual lookup for member and plan names
-            const payments: Payment[] = (paymentsData || []).map((p: any) => {
-                const member = memberMap.get(p.member_id);
-                const plan = planMap.get(p.plan_id);
-                return {
-                    id: p.id,
-                    memberId: p.member_id,
-                    memberName: member?.name || 'Unknown',
-                    memberPhone: member?.phone || '',
-                    amount: p.amount,
-                    paymentDate: new Date(p.payment_date),
-                    paymentMode: p.mode || 'cash',
-                    planId: p.plan_id,
-                    planName: plan?.name || 'Unknown Plan',
-                    notes: p.notes,
-                };
-            });
-
-            // Calculate revenue
-            const thisMonthRevenue = payments
-                .filter(p => {
-                    const date = p.paymentDate;
-                    return date.getMonth() === thisMonth && date.getFullYear() === thisYear;
-                })
-                .reduce((sum, p) => sum + p.amount, 0);
-
-            const totalRevenue = payments.reduce((sum, p) => sum + p.amount, 0);
-
-            // Set stats
-            const statsData: DashboardStats = {
-                totalMembers: (membersData || []).length,
-                activeMembers: memberStats.active,
-                dueSoonMembers: memberStats.dueSoon,
-                expiredMembers: memberStats.expired,
-                thisMonthRevenue,
-                totalRevenue,
-            };
-
-            setStats(statsData);
-            setRecentPayments(payments.slice(0, 10)); // Top 10 recent payments
-        } catch (error) {
-            console.error('Error loading dashboard:', error);
+        } catch (err) {
+            console.error('Error loading dashboard:', err);
+            setError('Failed to load dashboard data');
         } finally {
             setLoading(false);
         }
@@ -141,8 +53,8 @@ function DashboardContent() {
         return `₹${amount.toLocaleString('en-IN')}`;
     };
 
-    const formatDate = (date: Date) => {
-        return new Date(date).toLocaleDateString('en-IN', {
+    const formatDate = (dateStr: string) => {
+        return new Date(dateStr).toLocaleDateString('en-IN', {
             year: 'numeric',
             month: 'short',
             day: 'numeric',
@@ -171,6 +83,16 @@ function DashboardContent() {
                     <div className="text-center py-12">
                         <div className="animate-spin rounded-full h-10 w-10 border-2 border-gray-200 border-t-black mx-auto mb-4"></div>
                         <p className="text-sm text-gray-500">Loading dashboard...</p>
+                    </div>
+                ) : error ? (
+                    <div className="text-center py-12">
+                        <p className="text-red-600 mb-4">{error}</p>
+                        <button
+                            onClick={loadDashboardData}
+                            className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+                        >
+                            Retry
+                        </button>
                     </div>
                 ) : (
                     <>

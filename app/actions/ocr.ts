@@ -7,7 +7,9 @@ import {
     dataExtractionService,
     ExtractedMemberData,
 } from '@/lib/services/dataExtractionService';
+import { geminiService } from '@/lib/services/geminiService';
 import { getCurrentMonthYear } from '@/lib/utils/ocrUtils';
+import { logger } from '@/lib/utils/logger';
 
 // Types
 export interface OCRScanResult {
@@ -153,6 +155,8 @@ async function logOCRAttempt(data: {
 
 /**
  * Process document image and extract member data
+ * Uses Gemini AI for handwriting recognition (primary)
+ * Falls back to Google Vision + regex extraction if Gemini unavailable
  */
 export async function scanDocument(
     formData: FormData,
@@ -187,31 +191,55 @@ export async function scanDocument(
         const arrayBuffer = await file.arrayBuffer();
         const imageBuffer = Buffer.from(arrayBuffer);
 
-        // Perform OCR
-        const ocrResult = await googleVisionService.detectText(imageBuffer);
+        let extractedData: ExtractedMemberData;
+        let overallConfidence: number;
+        let textLength = 0;
+        let extractionMethod = 'unknown';
 
-        if (!ocrResult.success) {
-            await logOCRAttempt({
-                userId,
-                status: 'failed',
-                processingTime: Date.now() - startTime,
-                errorMessage: ocrResult.error,
-            });
+        // Try Gemini AI extraction first (better for handwriting)
+        if (geminiService.isAvailable()) {
+            logger.log('[scanDocument] Using Gemini AI for extraction');
+            extractionMethod = 'gemini';
 
-            return {
-                success: false,
-                error: ocrResult.error,
-                message: ocrResult.message || 'Failed to process document',
-            };
+            const geminiResult = await geminiService.extractMemberDetails(imageBuffer, file.type);
+
+            if (geminiResult.success && geminiResult.data) {
+                // Map Gemini response to ExtractedMemberData format
+                extractedData = {
+                    name: geminiResult.data.name,
+                    phone: geminiResult.data.phone,
+                    email: geminiResult.data.email,
+                    dateOfBirth: geminiResult.data.dateOfBirth,
+                    gender: geminiResult.data.gender,
+                    address: geminiResult.data.address,
+                    emergencyContact: null,
+                    aadhaar: geminiResult.data.aadhaar,
+                    pan: geminiResult.data.pan,
+                    confidence: geminiResult.data.confidence,
+                };
+                overallConfidence = geminiService.calculateOverallConfidence(geminiResult.data.confidence);
+
+                logger.success('[scanDocument] Gemini extraction successful');
+            } else {
+                // Gemini failed, fall back to Vision + regex
+                logger.warn('[scanDocument] Gemini failed, falling back to Vision API:', geminiResult.message);
+                extractionMethod = 'vision-fallback';
+
+                const fallbackResult = await fallbackToVisionExtraction(imageBuffer);
+                extractedData = fallbackResult.data;
+                overallConfidence = fallbackResult.confidence;
+                textLength = fallbackResult.textLength;
+            }
+        } else {
+            // Gemini not available, use Vision + regex
+            logger.log('[scanDocument] Gemini not configured, using Vision API');
+            extractionMethod = 'vision';
+
+            const visionResult = await fallbackToVisionExtraction(imageBuffer);
+            extractedData = visionResult.data;
+            overallConfidence = visionResult.confidence;
+            textLength = visionResult.textLength;
         }
-
-        // Extract structured data
-        const extractedData = dataExtractionService.extractMemberData(
-            ocrResult.fullText || ''
-        );
-        const overallConfidence = dataExtractionService.calculateOverallConfidence(
-            extractedData.confidence
-        );
 
         // Count extracted fields
         const fieldsExtracted = Object.entries(extractedData)
@@ -225,7 +253,8 @@ export async function scanDocument(
             confidence: overallConfidence,
             processingTime: Date.now() - startTime,
             fieldsExtracted,
-            textLength: ocrResult.textLength,
+            textLength,
+            documentType: extractionMethod,
         });
 
         // Increment usage
@@ -238,12 +267,12 @@ export async function scanDocument(
                 overallConfidence: parseFloat(overallConfidence.toFixed(2)),
                 processingTime: `${Date.now() - startTime}ms`,
                 fieldsExtracted,
-                textLength: ocrResult.textLength || 0,
+                textLength,
                 quotaRemaining: quota.remaining - 1,
             },
         };
     } catch (error) {
-        console.error('[scanDocument] Error:', error);
+        logger.error('[scanDocument] Error:', error);
 
         await logOCRAttempt({
             userId,
@@ -258,6 +287,55 @@ export async function scanDocument(
             message: 'Failed to process document. Please try again.',
         };
     }
+}
+
+/**
+ * Fallback extraction using Google Vision API + regex
+ */
+async function fallbackToVisionExtraction(imageBuffer: Buffer): Promise<{
+    data: ExtractedMemberData;
+    confidence: number;
+    textLength: number;
+}> {
+    const ocrResult = await googleVisionService.detectText(imageBuffer);
+
+    if (!ocrResult.success) {
+        // Return empty data on failure
+        return {
+            data: {
+                name: null,
+                phone: null,
+                email: null,
+                dateOfBirth: null,
+                gender: null,
+                address: null,
+                emergencyContact: null,
+                aadhaar: null,
+                pan: null,
+                confidence: {
+                    name: 0,
+                    phone: 0,
+                    email: 0,
+                    dateOfBirth: 0,
+                    gender: 0,
+                    address: 0,
+                    aadhaar: 0,
+                    pan: 0,
+                },
+            },
+            confidence: 0,
+            textLength: 0,
+        };
+    }
+
+    const extractedData = dataExtractionService.extractMemberData(ocrResult.fullText || '');
+    const confidence = dataExtractionService.calculateOverallConfidence(extractedData.confidence);
+
+    return {
+        data: extractedData,
+        confidence,
+        textLength: ocrResult.textLength || 0,
+    };
 }
 
 /**
@@ -349,7 +427,7 @@ export async function saveMemberFromOCR(
             .single();
 
         if (error) {
-            console.error('[saveMemberFromOCR] Error:', error);
+            logger.error('[saveMemberFromOCR] Error:', error);
             return {
                 success: false,
                 error: error.message,
@@ -364,7 +442,7 @@ export async function saveMemberFromOCR(
             memberId: newMember.id,
         };
     } catch (error) {
-        console.error('[saveMemberFromOCR] Error:', error);
+        logger.error('[saveMemberFromOCR] Error:', error);
         return {
             success: false,
             error: error instanceof Error ? error.message : 'Failed to save member',

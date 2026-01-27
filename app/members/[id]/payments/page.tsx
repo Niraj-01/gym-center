@@ -2,6 +2,8 @@
 
 /**
  * Member Payment History - View all payments for a member
+ * 
+ * Phase 4: Replaced alert() with toast notifications, console with logger
  */
 
 import { useState, useEffect } from 'react';
@@ -10,6 +12,9 @@ import { AuthGuard } from '@/components/auth/AuthGuard';
 import { Member, getMemberStatus, getStatusDisplay } from '@/lib/types/member';
 import { Payment } from '@/lib/types/payment';
 import { createClient } from '@/lib/supabase/client';
+import { useToast } from '@/lib/hooks/useToast';
+import { logger } from '@/lib/utils/logger';
+
 const supabase = createClient();
 
 
@@ -17,6 +22,7 @@ function PaymentHistoryContent() {
     const router = useRouter();
     const params = useParams();
     const memberId = params.id as string;
+    const toast = useToast();
 
     const [member, setMember] = useState<Member | null>(null);
     const [payments, setPayments] = useState<Payment[]>([]);
@@ -49,13 +55,13 @@ function PaymentHistoryContent() {
                 .order('payment_date', { ascending: false });
 
             if (memberError || !memberResult) {
-                console.error('❌ Error loading member:', memberError);
-                alert('Member not found');
+                logger.error('Error loading member:', memberError);
+                toast.error('Member not found');
                 router.push('/members');
                 return;
             }
 
-            console.log('✅ Loaded member:', memberResult.name, 'payments:', paymentsResult?.length);
+            logger.success('Loaded member:', memberResult.name, 'payments:', paymentsResult?.length);
 
             // Convert member from snake_case to camelCase - CORRECT column names
             const memberData: Member = {
@@ -92,8 +98,8 @@ function PaymentHistoryContent() {
             setMember(memberData);
             setPayments(paymentsData);
         } catch (error) {
-            console.error('Error loading data:', error);
-            alert('Failed to load payment history');
+            logger.error('Error loading data:', error);
+            toast.error('Failed to load payment history');
         } finally {
             setLoading(false);
         }

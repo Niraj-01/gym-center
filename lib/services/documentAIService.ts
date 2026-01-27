@@ -264,53 +264,16 @@ class DocumentAIService {
     }
 
     /**
-     * Mock response for development/testing
-     * Simulates a handwritten gym register
+     * No mock response - return error if API key not configured
+     * This prevents fake data from being shown to users
      */
     private getMockResponse(startTime: number): DocumentAIResult {
-        const mockText = `GYM REGISTER - JANUARY 2026
-
-Sr.  Name                Phone          Date       Amount   Status
--------------------------------------------------------------------
-1    Rajesh Kumar        9876543210     15/01/26   1500     Paid
-2    Priya Sharma        8765432109     15/01/26   2000     Paid
-3    Amit Singh          7654321098     16/01/26   1500     Unpaid
-4    Sunita Devi         9988776655     17/01/26   3000     Paid
-5    Vikram Patel        8877665544     18/01/26   1500     Partial`;
-
-        // Generate mock words with bounding boxes
-        const lines = mockText.split('\n');
-        const words: OCRWord[] = [];
-        let yOffset = 50;
-
-        for (const line of lines) {
-            const lineWords = line.split(/\s+/).filter(w => w.length > 0);
-            let xOffset = 50;
-
-            for (const word of lineWords) {
-                words.push({
-                    text: word,
-                    confidence: 0.7 + Math.random() * 0.25, // Random confidence 0.7-0.95
-                    boundingBox: {
-                        x: xOffset,
-                        y: yOffset,
-                        width: word.length * 12,
-                        height: 20,
-                    },
-                });
-                xOffset += word.length * 12 + 15;
-            }
-            yOffset += 35;
-        }
-
+        console.error('[DocumentAI] No API key configured - cannot process');
         return {
-            success: true,
-            fullText: mockText,
-            words,
-            blocks: [],
+            success: false,
+            error: 'NO_API_KEY',
+            message: 'No OCR API configured. Please configure Gemini or Vision API key.',
             processingTime: Date.now() - startTime,
-            pageWidth: 800,
-            pageHeight: yOffset + 50,
             processorType: 'mock',
         };
     }

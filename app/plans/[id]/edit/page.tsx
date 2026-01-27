@@ -2,6 +2,8 @@
 
 /**
  * Edit Plan Form - Update existing membership plan
+ * 
+ * Phase 4: Replaced alert() with toast notifications, console with logger
  */
 
 import { useState, useEffect } from 'react';
@@ -9,6 +11,9 @@ import { useRouter, useParams } from 'next/navigation';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { Plan, PlanFormData } from '@/lib/types/plan';
 import { createClient } from '@/lib/supabase/client';
+import { useToast } from '@/lib/hooks/useToast';
+import { logger } from '@/lib/utils/logger';
+
 const supabase = createClient();
 
 
@@ -16,6 +21,7 @@ function EditPlanFormContent() {
     const router = useRouter();
     const params = useParams();
     const planId = params.id as string;
+    const toast = useToast();
 
     const [plan, setPlan] = useState<Plan | null>(null);
     const [memberCount, setMemberCount] = useState(0);
@@ -46,7 +52,7 @@ function EditPlanFormContent() {
                 .eq('plan_id', planId);
 
             if (planError || !planResult) {
-                alert('Plan not found');
+                toast.error('Plan not found');
                 router.push('/plans');
                 return;
             }
@@ -73,8 +79,8 @@ function EditPlanFormContent() {
                 description: planData.description || '',
             });
         } catch (error) {
-            console.error('Error loading plan:', error);
-            alert('Failed to load plan data');
+            logger.error('Error loading plan:', error);
+            toast.error('Failed to load plan data');
         } finally {
             setLoading(false);
         }
@@ -84,22 +90,22 @@ function EditPlanFormContent() {
         e.preventDefault();
 
         if (!formData.name || !formData.duration || !formData.price) {
-            alert('Please fill in all required fields');
+            toast.warning('Please fill in all required fields');
             return;
         }
 
         if (formData.name.length < 3 || formData.name.length > 50) {
-            alert('Plan name must be between 3 and 50 characters');
+            toast.warning('Plan name must be between 3 and 50 characters');
             return;
         }
 
         if (formData.duration < 1 || formData.duration > 365) {
-            alert('Duration must be between 1 and 365 days');
+            toast.warning('Duration must be between 1 and 365 days');
             return;
         }
 
         if (formData.price <= 0) {
-            alert('Price must be greater than 0');
+            toast.warning('Price must be greater than 0');
             return;
         }
 
@@ -123,12 +129,13 @@ function EditPlanFormContent() {
             }
 
             router.push('/plans');
+            toast.success('Plan updated successfully');
         } catch (error) {
-            console.error('Error updating plan:', error);
+            logger.error('Error updating plan:', error);
             const errorMessage = error instanceof Error
                 ? error.message
                 : 'Unknown error occurred';
-            alert(`Failed to update plan: ${errorMessage}`);
+            toast.error(`Failed to update plan: ${errorMessage}`);
         } finally {
             setSubmitting(false);
         }
