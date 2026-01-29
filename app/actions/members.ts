@@ -367,3 +367,106 @@ export async function getPaginatedMembers(
         };
     }
 }
+
+// ============================================
+// UPI ID MANAGEMENT
+// ============================================
+
+/**
+ * Get member's UPI ID by member ID
+ */
+export async function getMemberUPI(memberId: number): Promise<{ upiId: string | null; error: string | null }> {
+    try {
+        const supabase = await createClient();
+
+        const { data, error } = await supabase
+            .from('members')
+            .select('upi_id')
+            .eq('id', memberId)
+            .single();
+
+        if (error) {
+            logger.error(`[getMemberUPI] Error for member ${memberId}:`, error);
+            return { upiId: null, error: error.message };
+        }
+
+        return { upiId: data?.upi_id || null, error: null };
+    } catch (err) {
+        logger.error('[getMemberUPI] Unexpected error:', err);
+        return { upiId: null, error: 'Failed to fetch UPI ID' };
+    }
+}
+
+/**
+ * Get member's UPI ID by phone number (for member portal)
+ */
+export async function getMemberUPIByPhone(phone: string): Promise<{ upiId: string | null; memberId: number | null; error: string | null }> {
+    try {
+        const supabase = await createClient();
+
+        const { data, error } = await supabase
+            .from('members')
+            .select('id, upi_id')
+            .eq('phone', phone)
+            .single();
+
+        if (error) {
+            logger.error(`[getMemberUPIByPhone] Error for phone ${phone}:`, error);
+            return { upiId: null, memberId: null, error: error.message };
+        }
+
+        return { upiId: data?.upi_id || null, memberId: data?.id || null, error: null };
+    } catch (err) {
+        logger.error('[getMemberUPIByPhone] Unexpected error:', err);
+        return { upiId: null, memberId: null, error: 'Failed to fetch UPI ID' };
+    }
+}
+
+/**
+ * Update member's UPI ID
+ * Validates UPI format before saving
+ */
+export async function updateMemberUPI(
+    memberId: number,
+    upiId: string
+): Promise<{ success: boolean; upiId: string | null; error: string | null }> {
+    try {
+        // Validate UPI format: username@bankname
+        const upiRegex = /^[\w.-]+@[\w.-]+$/;
+        const trimmedUPI = upiId.trim().toLowerCase();
+
+        if (!upiRegex.test(trimmedUPI)) {
+            return {
+                success: false,
+                upiId: null,
+                error: 'Invalid UPI ID format. Use format: yourname@bankname',
+            };
+        }
+
+        const supabase = await createClient();
+
+        const { data, error } = await supabase
+            .from('members')
+            .update({
+                upi_id: trimmedUPI,
+                upi_updated_at: new Date().toISOString(),
+            })
+            .eq('id', memberId)
+            .select('upi_id')
+            .single();
+
+        if (error) {
+            logger.error(`[updateMemberUPI] Error for member ${memberId}:`, error);
+            return { success: false, upiId: null, error: error.message };
+        }
+
+        logger.success(`[updateMemberUPI] Updated UPI for member ${memberId}`);
+        revalidatePath('/member/dashboard');
+
+        return { success: true, upiId: data?.upi_id || trimmedUPI, error: null };
+    } catch (err) {
+        logger.error('[updateMemberUPI] Unexpected error:', err);
+        return { success: false, upiId: null, error: 'Failed to update UPI ID' };
+    }
+}
+

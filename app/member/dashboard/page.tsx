@@ -18,6 +18,7 @@ import {
     shouldShowRenewalButton,
     formatDate
 } from '@/lib/utils/membership';
+import UPISettings from '@/components/member/UPISettings';
 
 const supabase = createClient();
 
@@ -253,6 +254,9 @@ function MemberDashboardContent() {
                         </div>
                     </div>
                 )}
+
+                {/* UPI Settings */}
+                <UPISettings phone={member.phone} />
 
                 {/* Payment History */}
                 <div className="bg-white rounded-2xl shadow-sm p-6">
