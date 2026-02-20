@@ -1,46 +1,154 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --accent: #2563eb;
-  
-  /* Spacing tokens */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-6: 24px;
-  --space-8: 32px;
-  
-  /* Border radius tokens */
-  --radius-lg: 0.5rem;  /* 8px - buttons, inputs */
-  --radius-xl: 0.75rem; /* 12px - cards, modals */
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-accent: var(--accent);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Base Palette */
+    --background: 255 255 255;
+    --foreground: 15 23 42;
+    /* Slate-900 */
+
+    /* Semantic Tokens */
+    --bg-surface: 255 255 255;
+    --bg-surface-elevated: 248 250 252;
+    /* Slate-50 */
+
+    --color-primary: 79 70 229;
+    /* Indigo-600 */
+    --color-primary-foreground: 255 255 255;
+
+    --color-secondary: 241 245 249;
+    /* Slate-100 */
+    --color-secondary-foreground: 15 23 42;
+    /* Slate-900 */
+
+    --color-destructive: 239 68 68;
+    /* Red-500 */
+    --color-destructive-foreground: 255 255 255;
+
+    --color-muted: 241 245 249;
+    /* Slate-100 */
+    --color-muted-foreground: 100 116 139;
+    /* Slate-500 */
+
+    --color-accent: 241 245 249;
+    /* Slate-100 */
+    --color-accent-foreground: 15 23 42;
+    /* Slate-900 */
+
+    --color-border: 226 232 240;
+    /* Slate-200 */
+    --color-input: 226 232 240;
+    /* Slate-200 */
+    --color-ring: 79 70 229;
+    /* Indigo-600 */
+
+    --radius-lg: 0.5rem;
+    --radius-xl: 0.75rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --background: 2 6 23;
+      /* Slate-950 */
+      --foreground: 248 250 252;
+      /* Slate-50 */
+
+      --bg-surface: 2 6 23;
+      /* Slate-950 */
+      --bg-surface-elevated: 15 23 42;
+      /* Slate-900 */
+
+      --color-primary: 99 102 241;
+      /* Indigo-500 */
+      --color-primary-foreground: 255 255 255;
+
+      --color-secondary: 30 41 59;
+      /* Slate-800 */
+      --color-secondary-foreground: 248 250 252;
+      /* Slate-50 */
+
+      --color-destructive: 127 29 29;
+      /* Red-900 */
+      --color-destructive-foreground: 248 250 252;
+      /* Slate-50 */
+
+      --color-muted: 30 41 59;
+      /* Slate-800 */
+      --color-muted-foreground: 148 163 184;
+      /* Slate-400 */
+
+      --color-accent: 30 41 59;
+      /* Slate-800 */
+      --color-accent-foreground: 248 250 252;
+      /* Slate-50 */
+
+      --color-border: 30 41 59;
+      /* Slate-800 */
+      --color-input: 30 41 59;
+      /* Slate-800 */
+      --color-ring: 99 102 241;
+      /* Indigo-500 */
+    }
   }
 }
 
+@theme inline {
+  --color-background: rgb(var(--background));
+  --color-foreground: rgb(var(--foreground));
+
+  --color-surface: rgb(var(--bg-surface));
+  --color-surface-elevated: rgb(var(--bg-surface-elevated));
+
+  --color-primary: rgb(var(--color-primary));
+  --color-primary-foreground: rgb(var(--color-primary-foreground));
+
+  --color-secondary: rgb(var(--color-secondary));
+  --color-secondary-foreground: rgb(var(--color-secondary-foreground));
+
+  --color-destructive: rgb(var(--color-destructive));
+  --color-destructive-foreground: rgb(var(--color-destructive-foreground));
+
+  --color-muted: rgb(var(--color-muted));
+  --color-muted-foreground: rgb(var(--color-muted-foreground));
+
+  --color-accent: rgb(var(--color-accent));
+  --color-accent-foreground: rgb(var(--color-accent-foreground));
+
+  --color-border: rgb(var(--color-border));
+  --color-input: rgb(var(--color-input));
+  --color-ring: rgb(var(--color-ring));
+
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+}
+
+@utility glass {
+  background: rgba(var(--bg-surface), 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(var(--color-border), 0.5);
+}
+
+@utility shadow-colored {
+  box-shadow: 0 4px 14px 0 rgba(var(--color-primary), 0.39);
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--color-background);
+  color: var(--color-foreground);
   font-family: 'Product Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   font-weight: 400;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* Typography hierarchy */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-weight: 700;
+  letter-spacing: -0.025em;
 }
 
 /* Page title: text-2xl font-semibold */
@@ -57,25 +165,8 @@ h1, h2, h3, h4, h5, h6 {
   line-height: 1.75rem;
 }
 
-/* Body text: text-sm (default) */
-/* Helper text: text-xs text-gray-500 */
-
-/* Button styles */
 button {
   font-weight: 500;
-}
-
-button:not([class*="text-"]):not([class*="hover:underline"]) {
-  background-color: var(--background);
-  border-radius: var(--radius-lg);
-  padding: 0.5rem 1rem;
-  transition: all 0.15s ease;
-}
-
-button.bg-black,
-button.bg-accent {
-  font-weight: 500;
-  border-radius: var(--radius-lg);
 }
 
 a:not([class*="button"]) {

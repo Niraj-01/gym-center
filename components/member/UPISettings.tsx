@@ -3,10 +3,16 @@
 /**
  * UPI Settings Component
  * Allows members to view, add, and update their UPI ID for payments
+ * Refactored to use new Design System components
  */
 
 import { useState, useEffect } from 'react';
 import { getMemberUPIByPhone, updateMemberUPI } from '@/app/actions/members';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Check, Copy, CreditCard, Edit2, Loader2, Save, X } from 'lucide-react';
+import { cn } from '@/lib/utils/cn';
 
 interface UPISettingsProps {
     phone: string;
@@ -105,110 +111,154 @@ export default function UPISettings({ phone }: UPISettingsProps) {
 
     if (isLoading) {
         return (
-            <div className="bg-white rounded-2xl shadow-sm p-6">
-                <div className="animate-pulse">
-                    <div className="h-5 bg-gray-200 rounded w-1/3 mb-4"></div>
-                    <div className="h-12 bg-gray-100 rounded"></div>
+            <Card className="p-6">
+                <div className="animate-pulse space-y-4">
+                    <div className="h-5 bg-muted rounded w-1/3"></div>
+                    <div className="h-12 bg-muted/50 rounded-xl"></div>
                 </div>
-            </div>
+            </Card>
         );
     }
 
     return (
-        <div className="bg-white rounded-2xl shadow-sm p-6">
-            {/* Success Message */}
-            {showSuccess && (
-                <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
-                    <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span className="text-green-800 font-medium">UPI ID saved successfully!</span>
-                </div>
-            )}
+        <Card className="p-6 space-y-6" variant="glass">
+            <div className="flex items-center justify-between">
+                <h3 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">
+                    Payment Settings
+                </h3>
+                {savedUpiId && !isEditing && (
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setIsEditing(true)}
+                        leftIcon={<Edit2 className="w-4 h-4" />}
+                    >
+                        Edit
+                    </Button>
+                )}
+            </div>
 
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Payment Settings</h3>
+            <AnimatePresence mode='wait'>
+                {showSuccess && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0 }}
+                        className="p-4 bg-green-50/50 border border-green-200/50 rounded-xl flex items-center gap-3 backdrop-blur-sm text-green-700"
+                    >
+                        <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+                            <Check className="w-3.5 h-3.5 text-green-600" />
+                        </div>
+                        <span className="font-medium text-sm">UPI ID updated successfully</span>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {isEditing ? (
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                        UPI ID <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                        type="text"
-                        value={upiId}
-                        onChange={(e) => {
-                            setUpiId(e.target.value);
-                            setError('');
-                        }}
-                        placeholder="yourname@paytm"
-                        className={`w-full px-4 py-3 text-lg border-2 rounded-xl outline-none transition-colors
-                            ${error ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-blue-500'}`}
-                        disabled={isSaving}
-                    />
-                    {error && (
-                        <p className="mt-2 text-sm text-red-600">{error}</p>
-                    )}
-                    <p className="mt-2 text-xs text-gray-500">
-                        e.g., yourname@paytm, yourname@oksbi, yourname@ybl
-                    </p>
-
-                    <div className="flex gap-3 mt-4">
-                        <button
-                            onClick={handleSave}
-                            disabled={isSaving || !upiId.trim()}
-                            className="flex-1 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-                        >
-                            {isSaving ? (
-                                <span className="flex items-center justify-center gap-2">
-                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                    Saving...
-                                </span>
-                            ) : (
-                                'Save UPI ID'
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="space-y-4"
+                >
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-muted-foreground ml-1">
+                            UPI ID <span className="text-destructive">*</span>
+                        </label>
+                        <div className="relative">
+                            <input
+                                type="text"
+                                value={upiId}
+                                onChange={(e) => {
+                                    setUpiId(e.target.value);
+                                    setError('');
+                                }}
+                                placeholder="yourname@paytm"
+                                className={cn(
+                                    "w-full px-4 py-3 bg-surface-elevated border-2 rounded-xl outline-none transition-all duration-300",
+                                    "focus:ring-4 focus:ring-primary/10",
+                                    error
+                                        ? 'border-destructive/50 focus:border-destructive'
+                                        : 'border-transparent focus:border-primary'
+                                )}
+                                disabled={isSaving}
+                            />
+                        </div>
+                        <AnimatePresence>
+                            {error && (
+                                <motion.p
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    className="text-xs text-destructive font-medium ml-1"
+                                >
+                                    {error}
+                                </motion.p>
                             )}
-                        </button>
+                        </AnimatePresence>
+                        <p className="text-xs text-muted-foreground ml-1">
+                            Examples: yourname@paytm, MobileNumber@ybl
+                        </p>
+                    </div>
+
+                    <div className="flex gap-3 pt-2">
+                        <Button
+                            variant="default"
+                            className="flex-1"
+                            onClick={handleSave}
+                            isLoading={isSaving}
+                            disabled={!upiId.trim()}
+                            leftIcon={!isSaving && <Save className="w-4 h-4" />}
+                        >
+                            Save Changes
+                        </Button>
                         {savedUpiId && (
-                            <button
+                            <Button
+                                variant="ghost"
                                 onClick={() => {
                                     setUpiId(savedUpiId);
                                     setIsEditing(false);
                                     setError('');
                                 }}
                                 disabled={isSaving}
-                                className="px-6 py-3 text-gray-600 font-semibold rounded-xl border-2 border-gray-200 hover:bg-gray-50 transition-colors"
                             >
                                 Cancel
-                            </button>
+                            </Button>
                         )}
                     </div>
-                </div>
+                </motion.div>
             ) : (
-                <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                            <span className="text-xl">💳</span>
+                <motion.div
+                    layoutId="view-card"
+                    className="p-5 bg-surface-elevated/50 rounded-2xl border border-border/50 flex items-center justify-between group hover:border-primary/20 transition-colors"
+                >
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-purple-500/10 flex items-center justify-center text-primary">
+                            <CreditCard className="w-6 h-6" />
                         </div>
                         <div>
-                            <p className="text-xs text-gray-500 mb-1">UPI ID</p>
-                            <p className="text-lg font-semibold text-gray-900">{savedUpiId}</p>
+                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
+                                Linked UPI ID
+                            </p>
+                            <p className="text-lg font-semibold text-foreground tracking-tight">
+                                {savedUpiId}
+                            </p>
                         </div>
                     </div>
-                    <div className="flex gap-2">
-                        <button
-                            onClick={copyToClipboard}
-                            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-                        >
-                            {copied ? '✓ Copied!' : 'Copy'}
-                        </button>
-                        <button
-                            onClick={() => setIsEditing(true)}
-                            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
-                        >
-                            Edit
-                        </button>
-                    </div>
-                </div>
+                    <Button
+                        variant={copied ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={copyToClipboard}
+                        className={cn(
+                            "transition-all duration-300",
+                            copied ? "bg-green-600 hover:bg-green-700 text-white shadow-green-200" : ""
+                        )}
+                        leftIcon={copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                    >
+                        {copied ? 'Copied' : 'Copy'}
+                    </Button>
+                </motion.div>
             )}
-        </div>
+        </Card>
     );
 }
+
