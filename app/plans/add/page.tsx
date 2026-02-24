@@ -25,7 +25,7 @@ function AddPlanFormContent() {
     const [formData, setFormData] = useState<PlanFormData>({
         name: '',
         duration: 30,
-        price: 0,
+        price: '' as unknown as number,
         description: '',
     });
 
@@ -154,8 +154,8 @@ function AddPlanFormContent() {
                                     id="price"
                                     required
                                     min={1}
-                                    value={formData.price}
-                                    onChange={(e) => setFormData({ ...formData, price: parseInt(e.target.value) || 0 })}
+                                    value={formData.price || ''}
+                                    onChange={(e) => setFormData({ ...formData, price: e.target.value === '' ? ('' as unknown as number) : parseInt(e.target.value) })}
                                     className="w-full px-4 py-3 border border-gray-300 text-black focus:outline-none focus:border-black transition-colors"
                                     placeholder="e.g., 1500"
                                 />
