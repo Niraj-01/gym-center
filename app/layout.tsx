@@ -6,10 +6,26 @@ import { Toaster } from "@/components/ui/Toaster";
 import { PRODUCT_NAME } from "@/lib/config";
 
 export const metadata: Metadata = {
-  title: `${PRODUCT_NAME} - Admin Portal`,
-  description: "Gym management and membership tracking system",
+  title: {
+    default: `${PRODUCT_NAME} - Gym Management`,
+    template: `%s | ${PRODUCT_NAME}`,
+  },
+  description: "Gym management and membership tracking system — manage members, payments, plans, and attendance.",
+  keywords: ["gym management", "membership tracking", "fitness center", "gym software", PRODUCT_NAME],
   icons: {
     icon: '/favicon.png',
+    apple: '/favicon.png',
+  },
+  openGraph: {
+    title: `${PRODUCT_NAME} - Gym Management`,
+    description: "Gym management and membership tracking system — manage members, payments, plans, and attendance.",
+    siteName: PRODUCT_NAME,
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${PRODUCT_NAME} - Gym Management`,
+    description: "Gym management and membership tracking system.",
   },
 };
 
