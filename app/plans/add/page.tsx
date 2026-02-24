@@ -55,12 +55,10 @@ function AddPlanFormContent() {
                 .from('plans')
                 .insert({
                     name: formData.name,
-                    duration: formData.duration,
+                    duration_days: formData.duration,
                     price: formData.price,
                     description: formData.description || null,
                     is_active: true,
-                    created_at: new Date().toISOString(),
-                    updated_at: new Date().toISOString(),
                 });
 
             if (error) {

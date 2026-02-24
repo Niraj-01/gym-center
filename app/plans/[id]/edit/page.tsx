@@ -61,7 +61,7 @@ function EditPlanFormContent() {
             const planData: Plan = {
                 id: planResult.id,
                 name: planResult.name,
-                duration: planResult.duration,
+                duration: planResult.duration_days,
                 price: planResult.price,
                 description: planResult.description,
                 isActive: planResult.is_active,
@@ -117,10 +117,9 @@ function EditPlanFormContent() {
                 .from('plans')
                 .update({
                     name: formData.name,
-                    duration: formData.duration,
+                    duration_days: formData.duration,
                     price: formData.price,
                     description: formData.description || null,
-                    updated_at: new Date().toISOString(),
                 })
                 .eq('id', planId);
 
