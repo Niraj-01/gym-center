@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GymCentre — Project Report</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: #2a2a3a;
+    --text: #e4e4ef;
+    --text-muted: #8888a0;
+    --accent: #6366f1;
+    --accent2: #818cf8;
+    --green: #22c55e;
+    --amber: #f59e0b;
+    --red: #ef4444;
+    --cyan: #06b6d4;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
+  .container { max-width:900px; margin:0 auto; padding:40px 24px 80px; }
+
+  /* Header */
+  .report-header {
+    text-align:center; padding:60px 20px; margin-bottom:48px;
+    background: linear-gradient(135deg, rgba(99,102,241,.12), rgba(6,182,212,.08));
+    border:1px solid var(--border); border-radius:20px;
+    position:relative; overflow:hidden;
+  }
+  .report-header::before {
+    content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%;
+    background: radial-gradient(circle at 30% 40%, rgba(99,102,241,.06) 0%, transparent 60%);
+  }
+  .report-header h1 { font-size:2.6rem; font-weight:800; letter-spacing:-.03em; margin-bottom:8px; position:relative; }
+  .report-header h1 span { background:linear-gradient(135deg,var(--accent),var(--cyan)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .report-header .subtitle { color:var(--text-muted); font-size:1.05rem; font-weight:400; position:relative; }
+  .report-header .meta { margin-top:20px; display:flex; justify-content:center; gap:24px; flex-wrap:wrap; font-size:.85rem; color:var(--text-muted); position:relative; }
+  .report-header .meta-item { display:flex; align-items:center; gap:6px; }
+  .dot { width:6px; height:6px; border-radius:50%; display:inline-block; }
+
+  /* Download Button */
+  .dl-bar { text-align:center; margin-bottom:48px; }
+  .dl-btn {
+    display:inline-flex; align-items:center; gap:10px; padding:14px 32px;
+    background:linear-gradient(135deg,var(--accent),#4f46e5); color:#fff;
+    border:none; border-radius:12px; font-size:.95rem; font-weight:600;
+    cursor:pointer; transition:transform .2s,box-shadow .2s; text-decoration:none;
+  }
+  .dl-btn:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(99,102,241,.35); }
+
+  /* Sections */
+  .section { margin-bottom:40px; }
+  .section-title {
+    font-size:1.35rem; font-weight:700; margin-bottom:18px; padding-bottom:10px;
+    border-bottom:2px solid var(--border); display:flex; align-items:center; gap:10px;
+  }
+  .badge {
+    display:inline-block; padding:3px 10px; border-radius:20px; font-size:.7rem;
+    font-weight:600; text-transform:uppercase; letter-spacing:.05em;
+  }
+  .badge-indigo { background:rgba(99,102,241,.15); color:var(--accent2); }
+  .badge-green { background:rgba(34,197,94,.15); color:var(--green); }
+  .badge-amber { background:rgba(245,158,11,.15); color:var(--amber); }
+  .badge-cyan { background:rgba(6,182,212,.15); color:var(--cyan); }
+
+  /* Cards */
+  .card {
+    background:var(--surface); border:1px solid var(--border); border-radius:14px;
+    padding:24px; margin-bottom:16px;
+  }
+  .card h4 { font-size:1rem; font-weight:600; margin-bottom:8px; }
+  .card p, .card li { color:var(--text-muted); font-size:.9rem; }
+
+  /* Stats Grid */
+  .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; margin-bottom:24px; }
+  .stat-card {
+    background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    padding:20px; text-align:center;
+  }
+  .stat-card .num { font-size:1.8rem; font-weight:800; }
+  .stat-card .label { font-size:.78rem; color:var(--text-muted); margin-top:4px; text-transform:uppercase; letter-spacing:.06em; }
+
+  /* Tech pills */
+  .pills { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+  .pill {
+    padding:6px 14px; border-radius:8px; font-size:.8rem; font-weight:500;
+    background:var(--surface2); border:1px solid var(--border);
+  }
+
+  /* Table */
+  .tbl { width:100%; border-collapse:collapse; margin-top:12px; font-size:.85rem; }
+  .tbl th { text-align:left; padding:10px 12px; background:var(--surface2); color:var(--text-muted); font-weight:600; font-size:.75rem; text-transform:uppercase; letter-spacing:.05em; }
+  .tbl td { padding:10px 12px; border-bottom:1px solid var(--border); }
+  .tbl tr:last-child td { border-bottom:none; }
+  .tbl code { background:var(--surface2); padding:2px 6px; border-radius:4px; font-size:.8rem; }
+
+  /* Tree */
+  .tree { font-family:'SF Mono',monospace; font-size:.82rem; color:var(--text-muted); line-height:1.9; padding:16px 20px; background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow-x:auto; }
+  .tree b { color:var(--accent2); font-weight:600; }
+  .tree em { font-style:normal; color:var(--text-muted); opacity:.7; }
+
+  /* Timeline */
+  .timeline { position:relative; padding-left:28px; }
+  .timeline::before { content:''; position:absolute; left:8px; top:6px; bottom:6px; width:2px; background:var(--border); }
+  .tl-item { position:relative; margin-bottom:18px; }
+  .tl-item::before { content:''; position:absolute; left:-24px; top:8px; width:12px; height:12px; border-radius:50%; background:var(--accent); border:2px solid var(--bg); }
+  .tl-item .tl-title { font-weight:600; font-size:.9rem; }
+  .tl-item .tl-desc { color:var(--text-muted); font-size:.82rem; }
+
+  ul.feat { list-style:none; }
+  ul.feat li { padding:6px 0; font-size:.9rem; color:var(--text-muted); }
+  ul.feat li::before { content:'▸ '; color:var(--accent2); font-weight:700; }
+
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media(max-width:640px){ .two-col{grid-template-columns:1fr;} .report-header h1{font-size:1.8rem;} }
+
+  @media print {
+    body { background:#fff; color:#111; }
+    .card,.stat-card,.tree { background:#f8f8fa; border-color:#ddd; }
+    .dl-bar { display:none; }
+    .report-header { background:#f0f0ff; }
+    .section-title { color:#111; }
+    .card p,.card li,.tl-item .tl-desc,ul.feat li { color:#444; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="report-header">
+    <h1><span>GymCentre</span></h1>
+    <p class="subtitle">Gym Membership Management System — Detailed Project Report</p>
+    <div class="meta">
+      <span class="meta-item"><span class="dot" style="background:var(--green)"></span> Production Ready</span>
+      <span class="meta-item">Version 0.1.0</span>
+      <span class="meta-item">Report Date: 25 Feb 2026</span>
+      <span class="meta-item">Author: Niraj</span>
+    </div>
+  </div>
+
+  <!-- DOWNLOAD -->
+  <div class="dl-bar">
+    <a class="dl-btn" id="downloadBtn" href="#" onclick="downloadReport()">
+      <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V3"/></svg>
+      Download Report (HTML)
+    </a>
+  </div>
+
+  <!-- 1. EXECUTIVE SUMMARY -->
+  <div class="section">
+    <h2 class="section-title">📋 1. Executive Summary</h2>
+    <div class="card">
+      <p><strong>GymCentre</strong> is a full-stack gym membership management platform built for <em>Matoshree Fitness</em>. It enables gym owners to manage members, track payments, handle membership plans, and digitize handwritten gym registers using AI-powered OCR. The application also provides a self-service member portal for members to check their membership status and manage UPI payment settings.</p>
+      <p style="margin-top:12px;">The platform is built with a modern tech stack — <strong>Next.js 16</strong> with the App Router pattern, <strong>Supabase</strong> (PostgreSQL) as the backend, and integrates <strong>Google Gemini AI</strong> for handwriting recognition. It features a responsive design optimized for both desktop and mobile devices, with a production-hardened security setup including Row Level Security (RLS) and CI/CD pipelines.</p>
+    </div>
+  </div>
+
+  <!-- 2. PROJECT STATISTICS -->
+  <div class="section">
+    <h2 class="section-title">📊 2. Project Statistics</h2>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="num" style="color:var(--accent2)">100</div><div class="label">Source Files</div></div>
+      <div class="stat-card"><div class="num" style="color:var(--cyan)">15,671</div><div class="label">Lines of Code</div></div>
+      <div class="stat-card"><div class="num" style="color:var(--green)">8</div><div class="label">Server Actions</div></div>
+      <div class="stat-card"><div class="num" style="color:var(--amber)">8</div><div class="label">DB Migrations</div></div>
+      <div class="stat-card"><div class="num" style="color:var(--red)">12+</div><div class="label">App Routes</div></div>
+      <div class="stat-card"><div class="num" style="color:var(--accent2)">33+</div><div class="label">Components</div></div>
+      <div class="stat-card"><div class="num" style="color:var(--cyan)">5</div><div class="label">AI Services</div></div>
+      <div class="stat-card"><div class="num" style="color:var(--green)">815</div><div class="label">SQL Lines</div></div>
+    </div>
+  </div>
+
+  <!-- 3. TECHNOLOGY STACK -->
+  <div class="section">
+    <h2 class="section-title">🛠️ 3. Technology Stack</h2>
+    <div class="two-col">
+      <div class="card">
+        <h4>Frontend</h4>
+        <div class="pills">
+          <span class="pill">Next.js 16.1.1</span>
+          <span class="pill">React 19.2.3</span>
+          <span class="pill">TypeScript 5</span>
+          <span class="pill">Tailwind CSS 4</span>
+          <span class="pill">Framer Motion</span>
+          <span class="pill">Lucide Icons</span>
+        </div>
+      </div>
+      <div class="card">
+        <h4>Backend & Database</h4>
+        <div class="pills">
+          <span class="pill">Supabase (PostgreSQL)</span>
+          <span class="pill">@supabase/ssr</span>
+          <span class="pill">Server Actions</span>
+          <span class="pill">RLS Policies</span>
+        </div>
+      </div>
+      <div class="card">
+        <h4>AI & OCR</h4>
+        <div class="pills">
+          <span class="pill">Google Gemini AI</span>
+          <span class="pill">Google Vision API</span>
+          <span class="pill">Document AI</span>
+        </div>
+      </div>
+      <div class="card">
+        <h4>Dev & Tooling</h4>
+        <div class="pills">
+          <span class="pill">Turbopack</span>
+          <span class="pill">ESLint 9</span>
+          <span class="pill">PostCSS</span>
+          <span class="pill">GitHub Actions CI/CD</span>
+          <span class="pill">Zod Validation</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. ARCHITECTURE -->
+  <div class="section">
+    <h2 class="section-title">🏗️ 4. System Architecture</h2>
+    <div class="card">
+      <h4>Architecture Pattern</h4>
+      <p>The app follows a <strong>Server-First Architecture</strong> using Next.js App Router. Data mutations are handled via <strong>Server Actions</strong> (located in <code>app/actions/</code>), while reads happen through direct Supabase client calls in client components or through server actions for optimized dashboard queries.</p>
+      <p style="margin-top:8px;">The system uses <strong>two Supabase client patterns</strong>:</p>
+      <ul class="feat" style="margin-top:8px;">
+        <li><code>lib/supabase/client.ts</code> — Synchronous client for <code>'use client'</code> components</li>
+        <li><code>lib/supabase/server.ts</code> — Async client for server actions (uses cookies)</li>
+      </ul>
+    </div>
+    <div class="card" style="margin-top:14px;">
+      <h4>Authentication Architecture</h4>
+      <p>Dual auth system — <strong>Admin Auth</strong> (email/password against an <code>admins</code> table) via <code>AuthContext</code> and <code>AuthGuard</code>, and <strong>Member Auth</strong> (phone-based login) via <code>MemberAuthContext</code> and <code>MemberGuard</code>/<code>MemberPhoneGuard</code>.</p>
+    </div>
+  </div>
+
+  <!-- 5. PROJECT STRUCTURE -->
+  <div class="section">
+    <h2 class="section-title">📂 5. Project Structure</h2>
+    <div class="tree">
+      <b>gym-centre/</b><br>
+      ├── <b>app/</b> <em>— Next.js App Router pages & API</em><br>
+      │   ├── <b>actions/</b> <em>— 8 server action modules</em><br>
+      │   │   ├── admin.ts, dashboard.ts, members.ts<br>
+      │   │   ├── ocr.ts, payments.ts, plans.ts<br>
+      │   │   ├── register.ts, stats.ts<br>
+      │   ├── <b>dashboard/</b> <em>— Admin analytics dashboard</em><br>
+      │   ├── <b>login/</b> <em>— Admin login page</em><br>
+      │   ├── <b>me/</b> <em>— Member self-service portal</em><br>
+      │   ├── <b>member/</b> <em>— Member login, dashboard, renew</em><br>
+      │   ├── <b>members/</b> <em>— Member CRUD, scan, add, [id]</em><br>
+      │   ├── <b>plans/</b> <em>— Plan management</em><br>
+      │   ├── <b>register/</b> <em>— OCR upload & verification</em><br>
+      │   ├── <b>settings/</b> <em>— App settings</em><br>
+      │   └── layout.tsx, globals.css, error.tsx<br>
+      ├── <b>components/</b> <em>— 33+ reusable components</em><br>
+      │   ├── <b>auth/</b> <em>— AuthGuard, MemberGuard, MemberPhoneGuard</em><br>
+      │   ├── <b>layout/</b> <em>— AdminLayout, AdminSidebar, PageHeader</em><br>
+      │   ├── <b>member/</b> <em>— UPISettings</em><br>
+      │   ├── <b>members/</b> <em>— 11 member components</em><br>
+      │   ├── <b>ocr/</b> <em>— 7 OCR components</em><br>
+      │   ├── <b>register/</b> <em>— DocumentViewer, VerificationForm</em><br>
+      │   └── <b>ui/</b> <em>— Button, Card, Toaster</em><br>
+      ├── <b>contexts/</b> <em>— AuthContext, MemberAuthContext</em><br>
+      ├── <b>lib/</b><br>
+      │   ├── <b>auth/</b> <em>— simple-auth module</em><br>
+      │   ├── <b>services/</b> <em>— 5 AI/OCR services</em><br>
+      │   ├── <b>supabase/</b> <em>— client.ts, server.ts</em><br>
+      │   ├── <b>types/</b> <em>— member, payment, plan types</em><br>
+      │   ├── <b>utils/</b> <em>— date, cn, logger, upi, membership</em><br>
+      │   └── <b>validation/</b> <em>— Zod schemas</em><br>
+      └── <b>supabase/migrations/</b> <em>— 8 SQL migration files</em>
+    </div>
+  </div>
+
+  <!-- 6. DATABASE SCHEMA -->
+  <div class="section">
+    <h2 class="section-title">🗄️ 6. Database Schema</h2>
+    <div class="card">
+      <h4>Core Tables <span class="badge badge-indigo">3 Tables</span></h4>
+      <table class="tbl">
+        <tr><th>Table</th><th>Key Columns</th><th>Purpose</th></tr>
+        <tr><td><code>members</code></td><td>id, name, email, phone, plan_id, start_date, expiry_date, photo_url, upi_id</td><td>Gym member records</td></tr>
+        <tr><td><code>plans</code></td><td>id, name, duration_days, price, is_active</td><td>Membership plan definitions</td></tr>
+        <tr><td><code>payments</code></td><td>id, member_id, amount, payment_date, mode</td><td>Payment transaction log</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h4>OCR & Digitization Tables <span class="badge badge-cyan">5 Tables + 2 Views</span></h4>
+      <table class="tbl">
+        <tr><th>Table</th><th>Purpose</th></tr>
+        <tr><td><code>scanned_documents</code></td><td>Uploaded register scan metadata & OCR status tracking</td></tr>
+        <tr><td><code>register_entries</code></td><td>Individual extracted records with confidence scores per field</td></tr>
+        <tr><td><code>ocr_processing_logs</code></td><td>Processing attempt logs for debugging & retry</td></tr>
+        <tr><td><code>ocr_usage_logs</code></td><td>API usage tracking per user</td></tr>
+        <tr><td><code>user_ocr_quota</code></td><td>Per-user OCR quota management</td></tr>
+        <tr><td><code>verification_queue</code> (View)</td><td>Pending entries awaiting human review</td></tr>
+        <tr><td><code>document_processing_summary</code> (View)</td><td>Aggregated document processing statistics</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h4>Security <span class="badge badge-green">RLS Enabled</span></h4>
+      <p>Row Level Security is enabled on all 8 public tables with policies restricting access to authenticated users only. Database indexes are applied on frequently queried columns (expiry_date, member_id, plan_id, payment_date).</p>
+    </div>
+  </div>
+
+  <!-- 7. FEATURES -->
+  <div class="section">
+    <h2 class="section-title">✨ 7. Feature Breakdown</h2>
+    <div class="two-col">
+      <div class="card">
+        <h4>👤 Member Management</h4>
+        <ul class="feat">
+          <li>Full CRUD operations for members</li>
+          <li>Server-side pagination, filtering & sorting</li>
+          <li>Status tracking: Active / Due Soon / Expired</li>
+          <li>Photo upload & avatar display</li>
+          <li>Search by name, phone, or email</li>
+          <li>Bulk status filtering</li>
+          <li>Delete with confirmation modal</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>💰 Payment Tracking</h4>
+        <ul class="feat">
+          <li>Record payments with multiple modes</li>
+          <li>Payment history per member</li>
+          <li>Monthly & all-time revenue analytics</li>
+          <li>UPI ID management per member</li>
+          <li>QR code generation for UPI payments</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>📊 Analytics Dashboard</h4>
+        <ul class="feat">
+          <li>Total, active, expiring & expired member counts</li>
+          <li>Monthly & total revenue stats</li>
+          <li>Recent payments feed with member details</li>
+          <li>Optimized server-side queries (3 queries total)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>📋 Plan Management</h4>
+        <ul class="feat">
+          <li>Create, edit, delete membership plans</li>
+          <li>Toggle plan active/inactive status</li>
+          <li>Duration in days, price in rupees</li>
+          <li>Sort by price ascending</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>🤖 AI-Powered OCR</h4>
+        <ul class="feat">
+          <li>Handwritten gym register digitization</li>
+          <li>Google Gemini AI Vision integration</li>
+          <li>Google Document AI & Vision API fallback</li>
+          <li>Per-field confidence scoring</li>
+          <li>Human verification queue with approve/reject/skip</li>
+          <li>Auto-create member records from approved entries</li>
+          <li>Processing logs & quota management</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>🏠 Member Self-Service Portal</h4>
+        <ul class="feat">
+          <li>Phone-based member login</li>
+          <li>View own membership status & details</li>
+          <li>Membership renewal flow</li>
+          <li>UPI ID settings management</li>
+          <li>Member dashboard at /me</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. SERVER ACTIONS -->
+  <div class="section">
+    <h2 class="section-title">⚡ 8. Server Actions API</h2>
+    <div class="card">
+      <table class="tbl">
+        <tr><th>Module</th><th>Functions</th><th>Description</th></tr>
+        <tr><td><code>members.ts</code></td><td>getMembers, getMember, createMember, updateMember, deleteMember, getPaginatedMembers, getMemberUPI, updateMemberUPI</td><td>Full member CRUD + pagination + UPI</td></tr>
+        <tr><td><code>payments.ts</code></td><td>getPayments, getMemberPayments, createPayment, getMonthlyRevenue, getTotalRevenue</td><td>Payment CRUD + revenue analytics</td></tr>
+        <tr><td><code>plans.ts</code></td><td>getPlans, getActivePlans, getPlan, createPlan, updatePlan, deletePlan, togglePlanStatus</td><td>Full plan lifecycle management</td></tr>
+        <tr><td><code>dashboard.ts</code></td><td>getDashboardData</td><td>Optimized combined dashboard query</td></tr>
+        <tr><td><code>register.ts</code></td><td>uploadRegisterDocument, processRegisterDocument, getVerificationQueue, approveEntry, skipEntry, rejectEntry</td><td>OCR document processing pipeline</td></tr>
+        <tr><td><code>ocr.ts</code></td><td>OCR processing actions</td><td>AI extraction & processing</td></tr>
+        <tr><td><code>stats.ts</code></td><td>Dashboard statistics</td><td>Statistical aggregations</td></tr>
+        <tr><td><code>admin.ts</code></td><td>Admin management</td><td>Admin user operations</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- 9. AI SERVICES -->
+  <div class="section">
+    <h2 class="section-title">🧠 9. AI & OCR Services</h2>
+    <div class="card">
+      <table class="tbl">
+        <tr><th>Service</th><th>Technology</th><th>Purpose</th></tr>
+        <tr><td><code>geminiService.ts</code></td><td>Google Gemini AI (Multimodal)</td><td>Primary — Extracts member details from handwritten membership cards using vision capabilities</td></tr>
+        <tr><td><code>documentAIService.ts</code></td><td>Google Document AI</td><td>Secondary — Structured document processing for gym registers</td></tr>
+        <tr><td><code>googleVisionService.ts</code></td><td>Google Cloud Vision API</td><td>Fallback — OCR text extraction from images</td></tr>
+        <tr><td><code>registerExtractionService.ts</code></td><td>Custom Parser</td><td>Parses raw OCR text into structured register entries</td></tr>
+        <tr><td><code>dataExtractionService.ts</code></td><td>Data Pipeline</td><td>Orchestrates multi-service extraction with confidence scoring</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- 10. SECURITY -->
+  <div class="section">
+    <h2 class="section-title">🔒 10. Security Measures</h2>
+    <div class="card">
+      <ul class="feat">
+        <li><strong>Row Level Security (RLS)</strong> enabled on all 8 public tables — only authenticated users can access data</li>
+        <li><strong>Auth Guards</strong> — AuthGuard for admin routes, MemberGuard & MemberPhoneGuard for member portal</li>
+        <li><strong>Server-side validation</strong> — Zod schemas for input validation</li>
+        <li><strong>UPI validation</strong> — Format validation before saving UPI IDs</li>
+        <li><strong>Environment variables</strong> — Supabase keys via <code>.env.local</code>, not committed to git</li>
+        <li><strong>Production build</strong> tested with CI/CD pipeline (GitHub Actions)</li>
+        <li><strong>Database indexes</strong> on high-traffic query columns for performance</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 11. DEVELOPMENT TIMELINE -->
+  <div class="section">
+    <h2 class="section-title">📅 11. Development Timeline</h2>
+    <div class="card">
+      <div class="timeline">
+        <div class="tl-item"><div class="tl-title">Initial Setup & Auth</div><div class="tl-desc">Project bootstrapped with Next.js, simple email/password auth implemented, legacy Google OAuth removed</div></div>
+        <div class="tl-item"><div class="tl-title">Core CRUD & UI</div><div class="tl-desc">Members, Plans, Payments CRUD. Logo and UI improvements. Mobile-optimized views.</div></div>
+        <div class="tl-item"><div class="tl-title">OCR & AI Features</div><div class="tl-desc">Member registration OCR, Gemini AI handwriting recognition, document scanning pipeline with verification queue</div></div>
+        <div class="tl-item"><div class="tl-title">Dashboard & Admin</div><div class="tl-desc">Analytics dashboard with optimized server queries, recent payments, admin password, hydration fixes</div></div>
+        <div class="tl-item"><div class="tl-title">Mobile Optimization</div><div class="tl-desc">Full responsive design across all pages — phones (320px–428px), tablets, desktops</div></div>
+        <div class="tl-item"><div class="tl-title">UPI & Member Portal</div><div class="tl-desc">UPI ID management, QR code generation, member self-service portal with phone login</div></div>
+        <div class="tl-item"><div class="tl-title">UI Modernization</div><div class="tl-desc">Design system with semantic color tokens, Button & Card components, refined UI with brighter colors</div></div>
+        <div class="tl-item"><div class="tl-title">Production Hardening</div><div class="tl-desc">RLS policies on all tables, CI/CD pipeline, database indexes, error handling, SEO optimization</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 12. SEO & PERFORMANCE -->
+  <div class="section">
+    <h2 class="section-title">🚀 12. SEO & Performance</h2>
+    <div class="two-col">
+      <div class="card">
+        <h4>SEO</h4>
+        <ul class="feat">
+          <li>Dynamic &lt;title&gt; tags with template</li>
+          <li>Meta descriptions & OpenGraph tags</li>
+          <li>Twitter card metadata</li>
+          <li>robots.ts & sitemap.ts configured</li>
+          <li>Semantic HTML with headings hierarchy</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Performance</h4>
+        <ul class="feat">
+          <li>Turbopack for fast dev builds</li>
+          <li>Optimized dashboard — 3 queries instead of 4</li>
+          <li>Server-side pagination reduces payload</li>
+          <li>Database indexes on hot query paths</li>
+          <li>Font preconnect for Google Fonts</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 13. HOW TO RUN -->
+  <div class="section">
+    <h2 class="section-title">🖥️ 13. Setup & Running</h2>
+    <div class="card">
+      <h4>Prerequisites</h4>
+      <p>Node.js 18+, npm, a Supabase project with the schema applied.</p>
+      <h4 style="margin-top:16px;">Environment Variables (<code>.env.local</code>)</h4>
+      <div class="tree" style="margin-top:8px;">
+        NEXT_PUBLIC_SUPABASE_URL=https://&lt;project&gt;.supabase.co<br>
+        NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...<br>
+        GEMINI_API_KEY=&lt;your-gemini-api-key&gt;
+      </div>
+      <h4 style="margin-top:16px;">Commands</h4>
+      <div class="tree" style="margin-top:8px;">
+        $ cd gym-centre<br>
+        $ npm install <em>— Install dependencies</em><br>
+        $ npm run dev <em>— Start dev server at http://localhost:3000</em><br>
+        $ npm run build <em>— Production build</em><br>
+        $ npm run lint <em>— ESLint check</em>
+      </div>
+    </div>
+  </div>
+
+  <!-- 14. FUTURE SCOPE -->
+  <div class="section">
+    <h2 class="section-title">🔮 14. Future Scope</h2>
+    <div class="card">
+      <ul class="feat">
+        <li>Attendance tracking with check-in/check-out</li>
+        <li>Multi-gym / multi-tenant support</li>
+        <li>Payment gateway integration (Razorpay/Stripe)</li>
+        <li>Automated membership renewal reminders (SMS/Email)</li>
+        <li>Advanced analytics — retention, churn, revenue forecasts</li>
+        <li>Trainer management and scheduling</li>
+        <li>Mobile app (React Native) for members</li>
+        <li>Bulk import/export of member data (CSV/Excel)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div style="text-align:center; margin-top:60px; padding-top:24px; border-top:1px solid var(--border); color:var(--text-muted); font-size:.8rem;">
+    <p>GymCentre Project Report — Generated on 25 February 2026</p>
+    <p style="margin-top:4px;">Built with Next.js 16 · Supabase · Google Gemini AI</p>
+  </div>
+
+</div>
+
+<script>
+function downloadReport() {
+  const html = document.documentElement.outerHTML;
+  const blob = new Blob(['<!DOCTYPE html>' + html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'GymCentre_Project_Report.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
