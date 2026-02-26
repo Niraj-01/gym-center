@@ -272,6 +272,23 @@ function MemberDashboardContent() {
                     </div>
                 </div>
 
+                {/* Calorie Tracker */}
+                <div
+                    onClick={() => router.push('/member/calories')}
+                    className="bg-white rounded-2xl shadow-sm p-6 cursor-pointer hover:shadow-md transition-shadow border border-gray-100"
+                >
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-sm text-gray-500 mb-1">Nutrition</p>
+                            <p className="text-base font-bold text-gray-900">Calorie Tracker</p>
+                            <p className="text-xs text-gray-500 mt-1">
+                                Track daily calories &amp; macros with AI-powered food lookup
+                            </p>
+                        </div>
+                        <div className="text-3xl">🍽️</div>
+                    </div>
+                </div>
+
                 {/* UPI Settings */}
                 <UPISettings phone={member.phone} />
 

@@ -36,6 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         const session = getAdminSession();
         if (session && session.isLoggedIn) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setUser(session);
             setIsAdmin(true);
         }

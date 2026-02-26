@@ -52,8 +52,13 @@ function WorkoutPlansContent() {
             }));
 
             setPlans(plansData);
-        } catch (err: any) {
-            let errorMsg = err?.message || String(err);
+        } catch (err: unknown) {
+            let errorMsg = 'An unknown error occurred';
+            if (err instanceof Error) {
+                errorMsg = err.message;
+            } else if (typeof err === 'string') {
+                errorMsg = err;
+            }
             if (errorMsg.includes('<!DOCTYPE html>') || errorMsg.includes('525: SSL handshake')) {
                 errorMsg = 'Secure connection to database temporarily failed. Please refresh the page.';
             }
