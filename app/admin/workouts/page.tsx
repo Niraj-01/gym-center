@@ -52,8 +52,12 @@ function WorkoutPlansContent() {
             }));
 
             setPlans(plansData);
-        } catch (err) {
-            console.error('Error loading workout plans:', err);
+        } catch (err: any) {
+            let errorMsg = err?.message || String(err);
+            if (errorMsg.includes('<!DOCTYPE html>') || errorMsg.includes('525: SSL handshake')) {
+                errorMsg = 'Secure connection to database temporarily failed. Please refresh the page.';
+            }
+            console.error('Error loading workout plans:', errorMsg);
         } finally {
             setLoading(false);
         }

@@ -159,9 +159,16 @@ export async function getDashboardData(): Promise<{
         };
     } catch (error) {
         console.error('[Dashboard] Error fetching data:', error);
+        let errorMessage = error instanceof Error ? error.message : String(error);
+
+        // Clean up Cloudflare 525 HTML error responses
+        if (errorMessage.includes('<!DOCTYPE html>') || errorMessage.includes('525: SSL handshake')) {
+            errorMessage = 'Secure connection to database temporarily failed. Please refresh the page.';
+        }
+
         return {
             data: null,
-            error: error instanceof Error ? error.message : 'Unknown error',
+            error: errorMessage,
         };
     }
 }
