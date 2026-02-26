@@ -120,7 +120,7 @@ function QRCodeContent() {
                                 </li>
                                 <li className="flex gap-3">
                                     <span className="font-bold">4.</span>
-                                    <span>They'll be redirected to member login page</span>
+                                    <span>They&apos;ll be redirected to member login page</span>
                                 </li>
                                 <li className="flex gap-3">
                                     <span className="font-bold">5.</span>

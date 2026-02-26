@@ -72,7 +72,7 @@ function PaymentHistoryContent() {
                 photoUrl: memberResult.photo_url,
                 joinDate: memberResult.start_date ? new Date(memberResult.start_date) : new Date(),
                 planId: memberResult.plan_id,
-                planName: (memberResult.plans as any)?.name || 'Unknown',
+                planName: (memberResult.plans as unknown as { name: string } | null)?.name || 'Unknown',
                 membershipStartDate: memberResult.start_date ? new Date(memberResult.start_date) : new Date(),
                 membershipExpiryDate: memberResult.expiry_date ? new Date(memberResult.expiry_date) : new Date(),
                 notes: '',
@@ -82,14 +82,14 @@ function PaymentHistoryContent() {
             };
 
             // Convert payments from snake_case to camelCase
-            const paymentsData: Payment[] = (paymentsResult || []).map((p: any) => ({
+            const paymentsData: Payment[] = (paymentsResult || []).map((p: { id: number; member_id: number; amount: number; payment_date: string; mode: string; plan_id?: number; notes?: string }) => ({
                 id: p.id,
                 memberId: p.member_id,
                 memberName: memberData.name,
                 memberPhone: memberData.phone,
                 amount: p.amount,
                 paymentDate: p.payment_date ? new Date(p.payment_date) : new Date(),
-                paymentMode: p.mode || 'cash',
+                paymentMode: (p.mode || 'cash') as import('@/lib/types/payment').PaymentMode,
                 planId: p.plan_id,
                 planName: memberData.planName,
                 notes: p.notes || '',

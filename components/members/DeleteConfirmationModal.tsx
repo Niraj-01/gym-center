@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 interface DeleteConfirmationModalProps {
     isOpen: boolean;
@@ -15,16 +15,18 @@ export function DeleteConfirmationModal({
     onConfirm,
     onCancel,
 }: DeleteConfirmationModalProps) {
-    const [isVisible, setIsVisible] = useState(false);
+    const [isVisible, setIsVisible] = useState(isOpen);
 
-    useEffect(() => {
-        if (isOpen) {
-            setIsVisible(true);
-        } else {
-            const timer = setTimeout(() => setIsVisible(false), 200);
-            return () => clearTimeout(timer);
+    // Use a ref-based approach to handle exit animation without setState in effect
+    if (isOpen && !isVisible) {
+        setIsVisible(true);
+    }
+
+    const handleTransitionEnd = () => {
+        if (!isOpen) {
+            setIsVisible(false);
         }
-    }, [isOpen]);
+    };
 
     if (!isVisible && !isOpen) return null;
 
@@ -32,6 +34,7 @@ export function DeleteConfirmationModal({
         <div
             className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-opacity duration-200 ${isOpen ? 'opacity-100' : 'opacity-0'
                 }`}
+            onTransitionEnd={handleTransitionEnd}
         >
             {/* Backdrop */}
             <div

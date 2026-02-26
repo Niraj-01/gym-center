@@ -68,7 +68,7 @@ function MemberProfileContent() {
                 photoUrl: data.photo_url,
                 joinDate: new Date(data.start_date),
                 planId: data.plan_id,
-                planName: (data.plans as any)?.name || 'Unknown Plan',
+                planName: (data.plans as unknown as { name: string } | null)?.name || 'Unknown Plan',
                 membershipStartDate: new Date(data.start_date),
                 membershipExpiryDate: new Date(data.expiry_date),
                 notes: data.notes,

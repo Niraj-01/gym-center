@@ -65,9 +65,11 @@ function DashboardContent() {
         return mode.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     };
 
-    const getCurrentMonth = () => {
-        return new Date().toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
-    };
+    const [currentMonth, setCurrentMonth] = useState('');
+
+    useEffect(() => {
+        setCurrentMonth(new Date().toLocaleDateString('en-IN', { month: 'long', year: 'numeric' }));
+    }, []);
 
     return (
         <AdminLayout>
@@ -147,7 +149,7 @@ function DashboardContent() {
                                     <p className="text-3xl font-semibold text-black mt-2">
                                         {formatCurrency(stats?.thisMonthRevenue || 0)}
                                     </p>
-                                    <p className="text-xs text-gray-500 mt-1">{getCurrentMonth()}</p>
+                                    <p className="text-xs text-gray-500 mt-1">{currentMonth || 'This month'}</p>
                                 </div>
 
                                 {/* Total Revenue */}

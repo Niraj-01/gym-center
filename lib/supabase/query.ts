@@ -10,7 +10,14 @@
  *   );
  */
 
-type SupabaseResult<T> = { data: T | null; error: any };
+interface SupabaseError {
+    message: string;
+    details?: string;
+    hint?: string;
+    code?: string;
+}
+
+type SupabaseResult<T> = { data: T | null; error: SupabaseError | null };
 
 export async function safeQuery<T>(
     fn: () => Promise<SupabaseResult<T>>
@@ -31,6 +38,6 @@ export async function safeQuery<T>(
         return { data, error: null };
     } catch (err) {
         console.error('[Unexpected Error]', err);
-        return { data: null, error: err };
+        return { data: null, error: { message: err instanceof Error ? err.message : 'Unknown error' } };
     }
 }

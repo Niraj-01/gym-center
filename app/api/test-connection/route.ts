@@ -8,7 +8,7 @@ export async function GET() {
             name: string
             status: 'PASS' | 'FAIL'
             message: string
-            details?: any
+            details?: unknown
         }>,
     }
 

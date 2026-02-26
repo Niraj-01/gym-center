@@ -47,15 +47,18 @@ export function VerificationForm({
 
     // Update form when entry changes
     useEffect(() => {
-        setFormData({
-            name: entry.name || '',
-            phone: entry.phone || '',
-            date: entry.entry_date || '',
-            amount: entry.amount,
-            status: entry.payment_status,
+        // Defer state updates to avoid synchronous setState in effect
+        queueMicrotask(() => {
+            setFormData({
+                name: entry.name || '',
+                phone: entry.phone || '',
+                date: entry.entry_date || '',
+                amount: entry.amount,
+                status: entry.payment_status,
+            });
+            setShowRejectDialog(false);
+            setRejectReason('');
         });
-        setShowRejectDialog(false);
-        setRejectReason('');
 
         // Focus first low-confidence field or name
         setTimeout(() => {
@@ -188,8 +191,8 @@ export function VerificationForm({
                         value={formData.name}
                         onChange={(e) => handleChange('name', e.target.value)}
                         className={`w-full px-3 py-2 border-2 rounded-lg transition outline-none ${isLowConfidence('name')
-                                ? 'border-yellow-300 bg-yellow-50 focus:border-yellow-500'
-                                : 'border-gray-200 focus:border-black'
+                            ? 'border-yellow-300 bg-yellow-50 focus:border-yellow-500'
+                            : 'border-gray-200 focus:border-black'
                             }`}
                         placeholder="Enter name"
                     />
@@ -210,8 +213,8 @@ export function VerificationForm({
                             value={formData.phone}
                             onChange={(e) => handleChange('phone', e.target.value.replace(/\D/g, '').slice(0, 10))}
                             className={`flex-1 px-3 py-2 border-2 rounded-lg transition outline-none ${isLowConfidence('phone')
-                                    ? 'border-yellow-300 bg-yellow-50 focus:border-yellow-500'
-                                    : 'border-gray-200 focus:border-black'
+                                ? 'border-yellow-300 bg-yellow-50 focus:border-yellow-500'
+                                : 'border-gray-200 focus:border-black'
                                 }`}
                             placeholder="9876543210"
                             maxLength={10}
@@ -230,8 +233,8 @@ export function VerificationForm({
                         value={formData.date || ''}
                         onChange={(e) => handleChange('date', e.target.value)}
                         className={`w-full px-3 py-2 border-2 rounded-lg transition outline-none ${isLowConfidence('date')
-                                ? 'border-yellow-300 bg-yellow-50 focus:border-yellow-500'
-                                : 'border-gray-200 focus:border-black'
+                            ? 'border-yellow-300 bg-yellow-50 focus:border-yellow-500'
+                            : 'border-gray-200 focus:border-black'
                             }`}
                     />
                 </div>
@@ -251,8 +254,8 @@ export function VerificationForm({
                             value={formData.amount ?? ''}
                             onChange={(e) => handleChange('amount', e.target.value ? parseFloat(e.target.value) : null)}
                             className={`flex-1 px-3 py-2 border-2 rounded-lg transition outline-none ${isLowConfidence('amount')
-                                    ? 'border-yellow-300 bg-yellow-50 focus:border-yellow-500'
-                                    : 'border-gray-200 focus:border-black'
+                                ? 'border-yellow-300 bg-yellow-50 focus:border-yellow-500'
+                                : 'border-gray-200 focus:border-black'
                                 }`}
                             placeholder="0"
                             min={0}
@@ -270,8 +273,8 @@ export function VerificationForm({
                         value={formData.status || ''}
                         onChange={(e) => handleChange('status', e.target.value || null)}
                         className={`w-full px-3 py-2 border-2 rounded-lg transition outline-none cursor-pointer ${isLowConfidence('status') && entry.status_confidence > 0
-                                ? 'border-yellow-300 bg-yellow-50 focus:border-yellow-500'
-                                : 'border-gray-200 focus:border-black'
+                            ? 'border-yellow-300 bg-yellow-50 focus:border-yellow-500'
+                            : 'border-gray-200 focus:border-black'
                             }`}
                     >
                         <option value="">Not specified</option>

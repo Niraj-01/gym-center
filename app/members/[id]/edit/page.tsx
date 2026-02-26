@@ -74,7 +74,7 @@ function EditMemberFormContent() {
                 photoUrl: memberResult.photo_url,
                 joinDate: memberResult.start_date ? new Date(memberResult.start_date) : new Date(),
                 planId: memberResult.plan_id,
-                planName: (memberResult.plans as any)?.name || 'Unknown',
+                planName: (memberResult.plans as unknown as { name: string } | null)?.name || 'Unknown',
                 membershipStartDate: memberResult.start_date ? new Date(memberResult.start_date) : new Date(),
                 membershipExpiryDate: memberResult.expiry_date ? new Date(memberResult.expiry_date) : new Date(),
                 notes: '',
@@ -84,8 +84,8 @@ function EditMemberFormContent() {
             };
 
             // Map plans with correct column names
-            const plansData: Plan[] = (plansResult || []).map((p: any) => ({
-                id: p.id,
+            const plansData: Plan[] = (plansResult || []).map((p: { id: number; name: string; duration_days: number; price: number; description?: string; is_active: boolean; created_at: string }) => ({
+                id: String(p.id),
                 name: p.name,
                 duration: p.duration_days, // Map duration_days to duration
                 price: p.price,

@@ -74,7 +74,7 @@ function MemberRenewalContent() {
             }
 
             setPlans(
-                (plansData || []).map((p: any) => ({
+                (plansData || []).map((p: { id: number; name: string; price: number; duration_days: number }) => ({
                     id: p.id,
                     name: p.name,
                     price: p.price,
@@ -222,7 +222,7 @@ function MemberRenewalContent() {
                         </button>
 
                         <p className="text-xs text-gray-500 text-center">
-                            You'll be redirected to your UPI app to complete payment
+                            You&apos;ll be redirected to your UPI app to complete payment
                         </p>
                     </div>
                 )}

@@ -5,7 +5,7 @@
  * Uses simple email/password authentication against admins table
  */
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import {
     getAdminSession,
@@ -27,11 +27,12 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const router = useRouter();
+    // Initialize with consistent values for both server and client to avoid hydration mismatch
     const [user, setUser] = useState<AdminSession | null>(null);
     const [loading, setLoading] = useState(true);
     const [isAdmin, setIsAdmin] = useState(false);
 
-    // Check for existing session on mount
+    // Read session from localStorage only on the client (after mount)
     useEffect(() => {
         const session = getAdminSession();
         if (session && session.isLoggedIn) {

@@ -58,7 +58,7 @@ function MemberDashboardContent() {
                 photoUrl: data.photo_url,
                 joinDate: new Date(data.start_date), // Using start_date as joinDate
                 planId: data.plan_id,
-                planName: (data.plans as any)?.name || 'Unknown',
+                planName: (data.plans as unknown as { name: string } | null)?.name || 'Unknown',
                 membershipStartDate: new Date(data.start_date),
                 membershipExpiryDate: new Date(data.expiry_date),
                 notes: data.notes,

@@ -4,7 +4,7 @@ type LogLevel = 'info' | 'warn' | 'error' | 'debug';
 class SupabaseLogger {
     private isDev = process.env.NODE_ENV === 'development';
 
-    log(level: LogLevel, message: string, data?: any) {
+    log(level: LogLevel, message: string, data?: unknown) {
         if (!this.isDev) return;
 
         const colors = {
@@ -26,7 +26,7 @@ class SupabaseLogger {
         this.log('info', `✅ Success: ${operation} on ${table}${rowCount !== undefined ? ` (${rowCount} rows)` : ''}`);
     }
 
-    error(table: string, operation: string, error: any) {
+    error(table: string, operation: string, error: Record<string, unknown>) {
         this.log('error', `❌ Error: ${operation} on ${table}`, {
             message: error.message,
             details: error.details,

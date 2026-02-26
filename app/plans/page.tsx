@@ -43,8 +43,8 @@ function PlansListContent() {
                 throw error;
             }
 
-            const plansData: Plan[] = (data || []).map((p: any) => ({
-                id: p.id,
+            const plansData: Plan[] = (data || []).map((p: { id: number; name: string; duration: number; price: number; description?: string; is_active: boolean; created_at: string; updated_at: string }) => ({
+                id: String(p.id),
                 name: p.name,
                 duration: p.duration,
                 price: p.price,

@@ -103,8 +103,8 @@ function MemberDashboardContent() {
                 email: memberData.email,
                 phone: memberData.phone,
                 photoUrl: memberData.photo_url,
-                planName: (memberData.plans as any)?.name || 'Unknown Plan',
-                planPrice: (memberData.plans as any)?.price || 0,
+                planName: (memberData.plans as unknown as { name: string } | null)?.name || 'Unknown Plan',
+                planPrice: (memberData.plans as unknown as { price: number } | null)?.price || 0,
                 startDate: new Date(memberData.start_date),
                 expiryDate: new Date(memberData.expiry_date)
             });
@@ -254,6 +254,23 @@ function MemberDashboardContent() {
                         </div>
                     </div>
                 )}
+
+                {/* My Workout Plan */}
+                <div
+                    onClick={() => router.push('/member/workout')}
+                    className="bg-white rounded-2xl shadow-sm p-6 cursor-pointer hover:shadow-md transition-shadow border border-gray-100"
+                >
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-sm text-gray-500 mb-1">Workout Plan</p>
+                            <p className="text-base font-bold text-gray-900">View My Workout</p>
+                            <p className="text-xs text-gray-500 mt-1">
+                                See your assigned exercises and log progress
+                            </p>
+                        </div>
+                        <div className="text-3xl">🏋️</div>
+                    </div>
+                </div>
 
                 {/* UPI Settings */}
                 <UPISettings phone={member.phone} />

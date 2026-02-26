@@ -56,9 +56,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             hover: { x: "200%", transition: { duration: 0.5 } }
         }
 
-        const Comp = asChild ? Slot : motion.button as any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const Comp = asChild ? Slot : (motion.button as unknown as React.ComponentType<any>)
 
         return (
+            // @ts-expect-error framer-motion and radix Slot type incompatibility
             <Comp
                 className={cn(buttonVariants({ variant, size, className }))}
 

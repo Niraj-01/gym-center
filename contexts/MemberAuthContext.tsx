@@ -5,7 +5,7 @@
  * Separate from main AuthContext (which is for admin Google login)
  */
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import {
     MemberSession,
@@ -26,15 +26,8 @@ const MemberAuthContext = createContext<MemberAuthContextValue | undefined>(unde
 
 export function MemberAuthProvider({ children }: { children: ReactNode }) {
     const router = useRouter();
-    const [memberSession, setMemberSession] = useState<MemberSession | null>(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        // Check for existing session on mount
-        const session = getMemberSession();
-        setMemberSession(session);
-        setLoading(false);
-    }, []);
+    const [memberSession, setMemberSession] = useState<MemberSession | null>(() => getMemberSession());
+    const [loading, setLoading] = useState(false);
 
     const loginWithPhone = async (phone: string): Promise<{ success: boolean; error?: string }> => {
         try {

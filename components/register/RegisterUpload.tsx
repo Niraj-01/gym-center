@@ -10,6 +10,23 @@ interface RegisterUploadProps {
 export function RegisterUpload({ onFileSelect, isUploading }: RegisterUploadProps) {
     const [isDragging, setIsDragging] = useState(false);
 
+    const isValidFile = (file: File): boolean => {
+        const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+        const maxSize = 10 * 1024 * 1024; // 10MB
+
+        if (!validTypes.includes(file.type)) {
+            alert('Please upload a JPG, PNG, or PDF file');
+            return false;
+        }
+
+        if (file.size > maxSize) {
+            alert('File size exceeds 10MB limit');
+            return false;
+        }
+
+        return true;
+    };
+
     const handleDragOver = useCallback((e: React.DragEvent) => {
         e.preventDefault();
         setIsDragging(true);
@@ -38,23 +55,6 @@ export function RegisterUpload({ onFileSelect, isUploading }: RegisterUploadProp
         // Reset input
         e.target.value = '';
     }, [onFileSelect]);
-
-    const isValidFile = (file: File): boolean => {
-        const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
-        const maxSize = 10 * 1024 * 1024; // 10MB
-
-        if (!validTypes.includes(file.type)) {
-            alert('Please upload a JPG, PNG, or PDF file');
-            return false;
-        }
-
-        if (file.size > maxSize) {
-            alert('File size exceeds 10MB limit');
-            return false;
-        }
-
-        return true;
-    };
 
     return (
         <div

@@ -311,12 +311,10 @@ class RegisterExtractionService {
             // Check for DD/MM/YY or DD/MM/YYYY format
             const dateMatch = word.text.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-]?(\d{2,4})?/);
             if (dateMatch) {
-                let [, day, month, year] = dateMatch;
+                const [, day, month, rawYear] = dateMatch;
 
                 // Default to current year if not provided
-                if (!year) {
-                    year = new Date().getFullYear().toString().slice(-2);
-                }
+                let year = rawYear || new Date().getFullYear().toString().slice(-2);
 
                 // Convert 2-digit year to 4-digit
                 if (year.length === 2) {
@@ -433,8 +431,8 @@ class RegisterExtractionService {
         const dateMatch = line.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-]?(\d{2,4})?/);
         let date: FieldValue<string> = { value: null, confidence: 0, original: '' };
         if (dateMatch) {
-            let [fullMatch, day, month, year] = dateMatch;
-            if (!year) year = new Date().getFullYear().toString().slice(-2);
+            const [fullMatch, day, month, rawYear] = dateMatch;
+            let year = rawYear || new Date().getFullYear().toString().slice(-2);
             if (year.length === 2) year = (parseInt(year) > 50 ? '19' : '20') + year;
             date = {
                 value: `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`,
