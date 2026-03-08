@@ -65,7 +65,7 @@ export default function LoginPage() {
                 className="max-w-md w-full bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-8 relative z-10"
                 initial={{ opacity: 0, y: 24, scale: 0.97 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] as const }}
             >
                 {/* Logo */}
                 <motion.div

@@ -51,7 +51,7 @@ const sectionVariants = {
         transition: {
             delay: i * 0.1,
             duration: 0.5,
-            ease: [0.22, 1, 0.36, 1]
+            ease: [0.22, 1, 0.36, 1] as const
         }
     })
 };
@@ -64,7 +64,7 @@ const paymentItemVariants = {
         transition: {
             delay: i * 0.06,
             duration: 0.4,
-            ease: [0.22, 1, 0.36, 1]
+            ease: [0.22, 1, 0.36, 1] as const
         }
     })
 };
