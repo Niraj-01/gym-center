@@ -2,12 +2,15 @@
 
 /**
  * Login Page - Simple Email/Password Authentication
+ * Enhanced with ambient background, form entrance animation, and interactive inputs.
  */
 
 import { useState, FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { GYM_NAME, PRODUCT_NAME } from '@/lib/config';
+import { AnimatedBackground } from '@/components/ui/AnimatedBackground';
+import { motion } from 'framer-motion';
 
 export default function LoginPage() {
     const router = useRouter();
@@ -54,32 +57,67 @@ export default function LoginPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-            <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 relative overflow-hidden">
+            {/* Ambient background */}
+            <AnimatedBackground variant="mesh" />
+
+            <motion.div
+                className="max-w-md w-full bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-8 relative z-10"
+                initial={{ opacity: 0, y: 24, scale: 0.97 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            >
                 {/* Logo */}
-                <div className="text-center mb-8">
-                    <img
+                <motion.div
+                    className="text-center mb-8"
+                    initial={{ opacity: 0, y: -12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2, duration: 0.5 }}
+                >
+                    <motion.img
                         src="/logo.png"
                         alt="GymCentre"
                         className="h-12 mx-auto mb-4"
+                        animate={{ scale: [1, 1.04, 1] }}
+                        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
                     />
-                    <h1 className="text-3xl font-bold text-gray-900">{PRODUCT_NAME}</h1>
-                    <p className="text-gray-600 mt-2">
+                    <h1 className="text-3xl font-bold text-gray-900 animate-shimmer-text">{PRODUCT_NAME}</h1>
+                    <motion.p
+                        className="text-gray-600 mt-2"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.4 }}
+                    >
                         Admin Portal for {GYM_NAME}
-                    </p>
-                </div>
+                    </motion.p>
+                </motion.div>
 
                 {/* Error Message */}
                 {error && (
-                    <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <motion.div
+                        className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        transition={{ duration: 0.3 }}
+                    >
                         <p className="text-sm text-red-800">{error}</p>
-                    </div>
+                    </motion.div>
                 )}
 
                 {/* Login Form */}
-                <form onSubmit={handleSubmit} className="space-y-5">
+                <motion.form
+                    onSubmit={handleSubmit}
+                    className="space-y-5"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.3, duration: 0.5 }}
+                >
                     {/* Email Input */}
-                    <div>
+                    <motion.div
+                        initial={{ opacity: 0, x: -12 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.35 }}
+                    >
                         <label
                             htmlFor="email"
                             className="block text-sm font-medium text-gray-700 mb-2"
@@ -93,12 +131,16 @@ export default function LoginPage() {
                             onChange={(e) => setEmail(e.target.value)}
                             required
                             placeholder="admin@example.com"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black transition-all duration-300 focus:shadow-[0_0_0_4px_rgba(var(--color-primary),0.1)]"
                         />
-                    </div>
+                    </motion.div>
 
                     {/* Password Input */}
-                    <div>
+                    <motion.div
+                        initial={{ opacity: 0, x: -12 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.4 }}
+                    >
                         <label
                             htmlFor="password"
                             className="block text-sm font-medium text-gray-700 mb-2"
@@ -112,15 +154,20 @@ export default function LoginPage() {
                             onChange={(e) => setPassword(e.target.value)}
                             required
                             placeholder="Enter your password"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black transition-all duration-300 focus:shadow-[0_0_0_4px_rgba(var(--color-primary),0.1)]"
                         />
-                    </div>
+                    </motion.div>
 
                     {/* Submit Button */}
-                    <button
+                    <motion.button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full px-6 py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="w-full px-6 py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors animate-pulse-glow"
+                        whileHover={{ y: -2, transition: { type: 'spring', stiffness: 400, damping: 20 } }}
+                        whileTap={{ scale: 0.97 }}
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5, duration: 0.4 }}
                     >
                         {isLoading ? (
                             <span className="flex items-center justify-center gap-2">
@@ -130,17 +177,22 @@ export default function LoginPage() {
                         ) : (
                             'Sign In'
                         )}
-                    </button>
-                </form>
+                    </motion.button>
+                </motion.form>
 
                 {/* Footer */}
-                <div className="mt-6 pt-6 border-t border-gray-200 text-center">
+                <motion.div
+                    className="mt-6 pt-6 border-t border-gray-200 text-center"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.6 }}
+                >
                     <p className="text-sm text-gray-600">Admin access only</p>
                     <p className="text-sm text-gray-500 mt-1">
                         Contact your gym owner for access
                     </p>
-                </div>
-            </div>
+                </motion.div>
+            </motion.div>
         </div>
     );
 }

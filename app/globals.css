@@ -173,3 +173,201 @@ a:not([class*="button"]) {
   text-decoration: none;
   color: inherit;
 }
+
+/* ═══════════════════════════════════════════════
+   ANIMATION KEYFRAMES — Breathing Dashboard
+   ═══════════════════════════════════════════════ */
+
+/* Ambient gradient mesh — slow liquid shift */
+@keyframes gradient-mesh {
+  0%, 100% { background-position: 0% 50%; }
+  25% { background-position: 100% 25%; }
+  50% { background-position: 100% 50%; }
+  75% { background-position: 0% 75%; }
+}
+
+/* Text shimmer sweep */
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* Soft pulsing glow for buttons & accents */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 8px 0 rgba(var(--color-primary), 0.2); }
+  50% { box-shadow: 0 0 20px 4px rgba(var(--color-primary), 0.35); }
+}
+
+/* Floating particle drift */
+@keyframes float-particle {
+  0%, 100% { transform: translateY(0) translateX(0) scale(1); opacity: 0.4; }
+  25% { transform: translateY(-30px) translateX(15px) scale(1.1); opacity: 0.6; }
+  50% { transform: translateY(-10px) translateX(-10px) scale(0.95); opacity: 0.5; }
+  75% { transform: translateY(-40px) translateX(5px) scale(1.05); opacity: 0.3; }
+}
+
+/* Enhanced skeleton shimmer */
+@keyframes skeleton-shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+/* Fade in + slide up for staggered reveals */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Light sweep across card surface */
+@keyframes light-sweep {
+  0% { transform: translateX(-100%) skewX(-15deg); }
+  100% { transform: translateX(200%) skewX(-15deg); }
+}
+
+/* Subtle breathing scale for live elements */
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+/* ═══════════════════════════════════════════════
+   ANIMATION UTILITY CLASSES
+   ═══════════════════════════════════════════════ */
+
+.animate-gradient-mesh {
+  background-size: 300% 300%;
+  animation: gradient-mesh 15s ease infinite;
+}
+
+.animate-shimmer-text {
+  background: linear-gradient(
+    90deg,
+    rgb(var(--foreground)) 0%,
+    rgb(var(--color-primary)) 45%,
+    rgb(var(--foreground)) 55%,
+    rgb(var(--foreground)) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 4s linear infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+.animate-skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgb(var(--bg-surface-elevated)) 25%,
+    rgba(var(--color-primary), 0.06) 50%,
+    rgb(var(--bg-surface-elevated)) 75%
+  );
+  background-size: 800px 100%;
+  animation: skeleton-shimmer 1.8s ease-in-out infinite;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  opacity: 0;
+}
+
+.animate-breathe {
+  animation: breathe 4s ease-in-out infinite;
+}
+
+/* Stagger delay helpers */
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+.stagger-5 { animation-delay: 0.25s; }
+.stagger-6 { animation-delay: 0.3s; }
+.stagger-7 { animation-delay: 0.35s; }
+.stagger-8 { animation-delay: 0.4s; }
+
+/* Springy interactive transitions */
+.interactive-spring {
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.25s ease;
+}
+
+.interactive-spring:hover {
+  transform: translateY(-2px) scale(1.02);
+}
+
+.interactive-spring:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Card perspective for 3D tilt */
+.perspective-card {
+  perspective: 800px;
+  transform-style: preserve-3d;
+}
+
+/* Light sweep overlay for cards */
+.light-sweep-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.light-sweep-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(var(--color-primary), 0.04) 45%,
+    rgba(var(--color-primary), 0.08) 50%,
+    rgba(var(--color-primary), 0.04) 55%,
+    transparent 60%
+  );
+  transform: translateX(-100%) skewX(-15deg);
+  transition: none;
+  pointer-events: none;
+}
+
+.light-sweep-card:hover::after {
+  animation: light-sweep 0.8s ease-out forwards;
+}
+
+/* Ambient background orb base styles */
+.ambient-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* Reduced motion: disable all custom animations */
+@media (prefers-reduced-motion: reduce) {
+  .animate-gradient-mesh,
+  .animate-shimmer-text,
+  .animate-pulse-glow,
+  .animate-skeleton-shimmer,
+  .animate-fade-in-up,
+  .animate-breathe,
+  .ambient-orb {
+    animation: none !important;
+  }
+  .animate-fade-in-up {
+    opacity: 1 !important;
+  }
+  .interactive-spring:hover {
+    transform: none;
+  }
+  .light-sweep-card:hover::after {
+    animation: none !important;
+  }
+}

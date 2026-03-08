@@ -2,7 +2,7 @@
 
 /**
  * Member Dashboard - Main portal for gym members
- * Shows membership status, days remaining, payment history, and renewal option
+ * Enhanced with staggered reveals, animated days counter, breathing status card.
  */
 
 import { useState, useEffect } from 'react';
@@ -19,6 +19,8 @@ import {
     formatDate
 } from '@/lib/utils/membership';
 import UPISettings from '@/components/member/UPISettings';
+import { useCountUp } from '@/lib/hooks/useCountUp';
+import { motion } from 'framer-motion';
 
 const supabase = createClient();
 
@@ -39,6 +41,46 @@ interface PaymentRecord {
     amount: number;
     paymentDate: string;
     mode: string;
+}
+
+const sectionVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: (i: number) => ({
+        opacity: 1,
+        y: 0,
+        transition: {
+            delay: i * 0.1,
+            duration: 0.5,
+            ease: [0.22, 1, 0.36, 1]
+        }
+    })
+};
+
+const paymentItemVariants = {
+    hidden: { opacity: 0, x: -16 },
+    visible: (i: number) => ({
+        opacity: 1,
+        x: 0,
+        transition: {
+            delay: i * 0.06,
+            duration: 0.4,
+            ease: [0.22, 1, 0.36, 1]
+        }
+    })
+};
+
+function AnimatedDaysCounter({ value, color }: { value: number; color: string }) {
+    const animated = useCountUp(Math.abs(value), 1400, 300);
+    return (
+        <motion.p
+            className={`text-6xl sm:text-7xl font-bold ${color}`}
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.3 }}
+        >
+            {value >= 0 ? animated : 'EXPIRED'}
+        </motion.p>
+    );
 }
 
 function MemberDashboardContent() {
@@ -140,80 +182,114 @@ function MemberDashboardContent() {
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Header */}
-            <header className="bg-white border-b border-gray-200">
+            <motion.header
+                className="bg-white/80 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+            >
                 <div className="max-w-3xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <img
+                        <motion.img
                             src="/logo.png"
                             alt="GymCentre"
                             className="h-5 sm:h-6"
+                            animate={{ scale: [1, 1.03, 1] }}
+                            transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
                         />
                         <div>
                             <h1 className="text-lg sm:text-xl font-bold text-gray-900">{GYM_NAME}</h1>
                             <p className="text-xs sm:text-sm text-gray-500">Member Portal</p>
                         </div>
                     </div>
-                    <button
+                    <motion.button
                         onClick={logout}
                         className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                        whileHover={{ y: -1 }}
+                        whileTap={{ scale: 0.97 }}
                     >
                         Logout
-                    </button>
+                    </motion.button>
                 </div>
-            </header>
+            </motion.header>
 
             {/* Main Content */}
             <main className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
                 {/* Member Info Card */}
-                <div className="bg-white rounded-2xl shadow-sm p-6">
+                <motion.div
+                    className="bg-white rounded-2xl shadow-sm p-6 light-sweep-card"
+                    custom={0}
+                    variants={sectionVariants}
+                    initial="hidden"
+                    animate="visible"
+                >
                     <div className="flex items-center gap-4 mb-6">
                         <MemberAvatar
                             name={member.name}
                             photoUrl={member.photoUrl || undefined}
                             size="lg"
                         />
-                        <div>
+                        <motion.div
+                            initial={{ opacity: 0, x: 12 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.2 }}
+                        >
                             <h2 className="text-xl font-bold text-gray-900">{member.name}</h2>
                             <p className="text-sm text-gray-600">{member.phone}</p>
                             <p className="text-sm font-medium text-blue-600 mt-1">{member.planName}</p>
-                        </div>
+                        </motion.div>
                     </div>
 
-                    {/* Status Card with Dynamic Colors */}
-                    <div className={`p-6 rounded-xl border-2 ${membershipStatus.bgColor} ${membershipStatus.borderColor}`}>
+                    {/* Status Card with Dynamic Colors + breathing border */}
+                    <motion.div
+                        className={`p-6 rounded-xl border-2 ${membershipStatus.bgColor} ${membershipStatus.borderColor}`}
+                        style={{ animation: 'breathe 4s ease-in-out infinite' }}
+                        custom={1}
+                        variants={sectionVariants}
+                        initial="hidden"
+                        animate="visible"
+                    >
                         <div className="flex items-center justify-between mb-4">
                             <span className={`text-sm font-semibold ${membershipStatus.textColor}`}>
                                 {membershipStatus.status}
                             </span>
                             {showRenewalButton && (
-                                <button
+                                <motion.button
                                     onClick={() => router.push('/member/renew')}
                                     className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                                    whileHover={{ y: -2, scale: 1.02 }}
+                                    whileTap={{ scale: 0.95 }}
                                 >
                                     Renew Now
-                                </button>
+                                </motion.button>
                             )}
                         </div>
 
-                        {/* Days Remaining - LARGE & PROMINENT */}
+                        {/* Days Remaining - LARGE & PROMINENT with counter animation */}
                         <div className="text-center py-4">
                             {membershipStatus.daysRemaining >= 0 ? (
                                 <div>
-                                    <p className={`text-6xl sm:text-7xl font-bold ${membershipStatus.textColor}`}>
-                                        {membershipStatus.daysRemaining}
-                                    </p>
-                                    <p className={`text-lg sm:text-xl ${membershipStatus.textColor} mt-2`}>
+                                    <AnimatedDaysCounter value={membershipStatus.daysRemaining} color={membershipStatus.textColor} />
+                                    <motion.p
+                                        className={`text-lg sm:text-xl ${membershipStatus.textColor} mt-2`}
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ delay: 0.6 }}
+                                    >
                                         {membershipStatus.daysRemaining === 1 ? 'day remaining' : 'days remaining'}
-                                    </p>
+                                    </motion.p>
                                 </div>
                             ) : (
                                 <div>
-                                    <p className={`text-5xl sm:text-6xl font-bold ${membershipStatus.textColor}`}>
-                                        EXPIRED
-                                    </p>
-                                    <p className={`text-base sm:text-lg ${membershipStatus.textColor} mt-2`}>
+                                    <AnimatedDaysCounter value={membershipStatus.daysRemaining} color={membershipStatus.textColor} />
+                                    <motion.p
+                                        className={`text-base sm:text-lg ${membershipStatus.textColor} mt-2`}
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ delay: 0.6 }}
+                                    >
                                         {Math.abs(membershipStatus.daysRemaining)} days ago
-                                    </p>
+                                    </motion.p>
                                 </div>
                             )}
                         </div>
@@ -229,12 +305,19 @@ function MemberDashboardContent() {
                                 <p className={`font-semibold ${membershipStatus.textColor}`}>{formatDate(member.expiryDate)}</p>
                             </div>
                         </div>
-                    </div>
-                </div>
+                    </motion.div>
+                </motion.div>
 
                 {/* Renewal CTA (if eligible) */}
                 {showRenewalButton && (
-                    <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl shadow-lg p-6 text-white">
+                    <motion.div
+                        className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl shadow-lg p-6 text-white"
+                        custom={2}
+                        variants={sectionVariants}
+                        initial="hidden"
+                        animate="visible"
+                        whileHover={{ scale: 1.01, transition: { type: 'spring', stiffness: 300, damping: 20 } }}
+                    >
                         <div className="flex items-start justify-between gap-4">
                             <div>
                                 <h3 className="text-lg font-bold mb-2">
@@ -243,22 +326,34 @@ function MemberDashboardContent() {
                                 <p className="text-blue-100 text-sm mb-4">
                                     Renew now to continue enjoying all gym facilities
                                 </p>
-                                <button
+                                <motion.button
                                     onClick={() => router.push('/member/renew')}
                                     className="px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition-colors"
+                                    whileHover={{ y: -2, scale: 1.03 }}
+                                    whileTap={{ scale: 0.97 }}
                                 >
                                     Renew Membership
-                                </button>
+                                </motion.button>
                             </div>
-                            <div className="text-4xl">🔔</div>
+                            <motion.div
+                                className="text-4xl"
+                                animate={{ rotate: [0, -10, 10, -10, 0] }}
+                                transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                            >
+                                🔔
+                            </motion.div>
                         </div>
-                    </div>
+                    </motion.div>
                 )}
 
                 {/* My Workout Plan */}
-                <div
+                <motion.div
                     onClick={() => router.push('/member/workout')}
-                    className="bg-white rounded-2xl shadow-sm p-6 cursor-pointer hover:shadow-md transition-shadow border border-gray-100"
+                    className="bg-white rounded-2xl shadow-sm p-6 cursor-pointer hover:shadow-md transition-shadow border border-gray-100 light-sweep-card interactive-spring"
+                    custom={3}
+                    variants={sectionVariants}
+                    initial="hidden"
+                    animate="visible"
                 >
                     <div className="flex items-center justify-between">
                         <div>
@@ -268,14 +363,23 @@ function MemberDashboardContent() {
                                 See your assigned exercises and log progress
                             </p>
                         </div>
-                        <div className="text-3xl">🏋️</div>
+                        <motion.div
+                            className="text-3xl"
+                            whileHover={{ scale: 1.2, rotate: -10 }}
+                        >
+                            🏋️
+                        </motion.div>
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Calorie Tracker */}
-                <div
+                <motion.div
                     onClick={() => router.push('/member/calories')}
-                    className="bg-white rounded-2xl shadow-sm p-6 cursor-pointer hover:shadow-md transition-shadow border border-gray-100"
+                    className="bg-white rounded-2xl shadow-sm p-6 cursor-pointer hover:shadow-md transition-shadow border border-gray-100 light-sweep-card interactive-spring"
+                    custom={4}
+                    variants={sectionVariants}
+                    initial="hidden"
+                    animate="visible"
                 >
                     <div className="flex items-center justify-between">
                         <div>
@@ -285,21 +389,46 @@ function MemberDashboardContent() {
                                 Track daily calories &amp; macros with AI-powered food lookup
                             </p>
                         </div>
-                        <div className="text-3xl">🍽️</div>
+                        <motion.div
+                            className="text-3xl"
+                            whileHover={{ scale: 1.2, rotate: 10 }}
+                        >
+                            🍽️
+                        </motion.div>
                     </div>
-                </div>
+                </motion.div>
 
                 {/* UPI Settings */}
-                <UPISettings phone={member.phone} />
+                <motion.div
+                    custom={5}
+                    variants={sectionVariants}
+                    initial="hidden"
+                    animate="visible"
+                >
+                    <UPISettings phone={member.phone} />
+                </motion.div>
 
                 {/* Payment History */}
-                <div className="bg-white rounded-2xl shadow-sm p-6">
+                <motion.div
+                    className="bg-white rounded-2xl shadow-sm p-6"
+                    custom={6}
+                    variants={sectionVariants}
+                    initial="hidden"
+                    animate="visible"
+                >
                     <h3 className="text-lg font-bold text-gray-900 mb-4">Payment History</h3>
 
                     {payments.length > 0 ? (
                         <div className="space-y-3">
-                            {payments.map((payment) => (
-                                <div key={payment.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            {payments.map((payment, index) => (
+                                <motion.div
+                                    key={payment.id}
+                                    custom={index}
+                                    variants={paymentItemVariants}
+                                    initial="hidden"
+                                    animate="visible"
+                                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg interactive-spring"
+                                >
                                     <div>
                                         <p className="font-semibold text-gray-900">₹{payment.amount.toLocaleString('en-IN')}</p>
                                         <p className="text-xs text-gray-600 mt-1">
@@ -313,20 +442,26 @@ function MemberDashboardContent() {
                                     <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
                                         {payment.mode}
                                     </span>
-                                </div>
+                                </motion.div>
                             ))}
                         </div>
                     ) : (
                         <p className="text-gray-500 text-center py-8">No payment history</p>
                     )}
-                </div>
+                </motion.div>
 
                 {/* Help Section */}
-                <div className="bg-white rounded-2xl shadow-sm p-6 text-center">
+                <motion.div
+                    className="bg-white rounded-2xl shadow-sm p-6 text-center"
+                    custom={7}
+                    variants={sectionVariants}
+                    initial="hidden"
+                    animate="visible"
+                >
                     <p className="text-sm text-gray-600">
                         Need help? Contact gym admin
                     </p>
-                </div>
+                </motion.div>
             </main>
         </div>
     );

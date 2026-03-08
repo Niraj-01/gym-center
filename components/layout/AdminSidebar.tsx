@@ -2,9 +2,11 @@
 
 /**
  * AdminSidebar - Sticky sidebar navigation for admin pages
+ * Enhanced with springy microinteractions, animated active indicator, and staggered nav reveals.
  */
 
 import { usePathname, useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface NavItem {
     label: string;
@@ -85,6 +87,19 @@ const navItems: NavItem[] = [
     },
 ];
 
+const navItemVariants = {
+    hidden: { opacity: 0, x: -12 },
+    visible: (i: number) => ({
+        opacity: 1,
+        x: 0,
+        transition: {
+            delay: i * 0.06,
+            duration: 0.4,
+            ease: [0.22, 1, 0.36, 1],
+        },
+    }),
+};
+
 export function AdminSidebar() {
     const pathname = usePathname();
     const router = useRouter();
@@ -100,12 +115,20 @@ export function AdminSidebar() {
         <aside className="w-64 bg-white border-r border-gray-200 min-h-screen sticky top-0 hidden lg:block">
             {/* Logo */}
             <div className="p-4 border-b border-gray-100">
-                <button
+                <motion.button
                     onClick={() => router.push('/dashboard')}
                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200 w-full"
                     style={{ background: 'transparent', border: 'none', cursor: 'pointer', outline: 'none' }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                 >
-                    <img src="/logo.png" alt="GC" className="h-9 w-9 object-contain flex-shrink-0" />
+                    <motion.img
+                        src="/logo.png"
+                        alt="GC"
+                        className="h-9 w-9 object-contain flex-shrink-0"
+                        animate={{ scale: [1, 1.03, 1] }}
+                        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                    />
                     <span
                         style={{
                             fontSize: '20px',
@@ -117,26 +140,45 @@ export function AdminSidebar() {
                     >
                         GymCentre
                     </span>
-                </button>
+                </motion.button>
             </div>
 
             {/* Navigation */}
             <nav className="p-4">
                 <ul className="space-y-1">
-                    {navItems.map((item) => (
-                        <li key={item.path}>
-                            <button
-                                onClick={() => router.push(item.path)}
-                                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${isActive(item.path)
-                                    ? 'bg-gray-100 text-black'
-                                    : 'text-gray-600 hover:bg-gray-50 hover:text-black'
-                                    }`}
+                    <AnimatePresence>
+                        {navItems.map((item, index) => (
+                            <motion.li
+                                key={item.path}
+                                custom={index}
+                                variants={navItemVariants}
+                                initial="hidden"
+                                animate="visible"
                             >
-                                {item.icon}
-                                {item.label}
-                            </button>
-                        </li>
-                    ))}
+                                <motion.button
+                                    onClick={() => router.push(item.path)}
+                                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors relative ${isActive(item.path)
+                                        ? 'bg-gray-100 text-black'
+                                        : 'text-gray-600 hover:bg-gray-50 hover:text-black'
+                                        }`}
+                                    whileHover={{ x: 4, transition: { type: 'spring', stiffness: 400, damping: 20 } }}
+                                    whileTap={{ scale: 0.97 }}
+                                >
+                                    {/* Animated active indicator bar */}
+                                    {isActive(item.path) && (
+                                        <motion.div
+                                            layoutId="sidebar-active-indicator"
+                                            className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full"
+                                            style={{ background: 'rgb(var(--color-primary))' }}
+                                            transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                                        />
+                                    )}
+                                    {item.icon}
+                                    {item.label}
+                                </motion.button>
+                            </motion.li>
+                        ))}
+                    </AnimatePresence>
                 </ul>
             </nav>
         </aside>

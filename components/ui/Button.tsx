@@ -13,7 +13,7 @@ const buttonVariants = cva(
     {
         variants: {
             variant: {
-                default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25",
+                default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25 animate-pulse-glow",
                 destructive:
                     "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-lg shadow-destructive/25",
                 outline:
@@ -65,16 +65,18 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
                 className={cn(buttonVariants({ variant, size, className }))}
 
                 ref={ref}
-                whileTap={{ scale: 0.98 }}
+                whileTap={{ scale: 0.95, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
+                whileHover={{ y: -2, transition: { type: 'spring', stiffness: 400, damping: 20 } }}
                 disabled={isLoading || props.disabled}
                 initial="initial"
-                whileHover="hover"
                 {...props}
             >
                 {variant === 'default' && !isLoading && (
                     <motion.div
                         className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg]"
                         variants={shineVariants}
+                        initial="initial"
+                        whileHover="hover"
                     />
                 )}
 

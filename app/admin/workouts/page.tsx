@@ -19,6 +19,7 @@ function WorkoutPlansContent() {
     const { user } = useAuth();
     const [plans, setPlans] = useState<WorkoutPlan[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [creating, setCreating] = useState(false);
     const [formData, setFormData] = useState<WorkoutPlanFormData>({ name: '', description: '' });
@@ -30,7 +31,8 @@ function WorkoutPlansContent() {
     const loadPlans = async () => {
         try {
             setLoading(true);
-            const { data, error } = await supabase
+            setError(null);
+            const { data, error: queryError } = await supabase
                 .from('workout_plans')
                 .select(`
                     *,
@@ -38,7 +40,7 @@ function WorkoutPlansContent() {
                 `)
                 .order('created_at', { ascending: false });
 
-            if (error) throw error;
+            if (queryError) throw queryError;
 
             const plansData: WorkoutPlan[] = (data || []).map((p: Record<string, unknown>) => ({
                 id: String(p.id),
@@ -60,9 +62,10 @@ function WorkoutPlansContent() {
                 errorMsg = err;
             }
             if (errorMsg.includes('<!DOCTYPE html>') || errorMsg.includes('525: SSL handshake')) {
-                errorMsg = 'Secure connection to database temporarily failed. Please refresh the page.';
+                errorMsg = 'Secure connection to database temporarily failed. Please try again.';
             }
             console.error('Error loading workout plans:', errorMsg);
+            setError(errorMsg);
         } finally {
             setLoading(false);
         }
@@ -190,8 +193,25 @@ function WorkoutPlansContent() {
                     </div>
                 )}
 
+                {/* Error State */}
+                {!loading && error && (
+                    <div className="text-center py-16 border border-dashed border-red-200 rounded-xl bg-red-50/50">
+                        <svg className="w-12 h-12 text-red-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                        </svg>
+                        <p className="text-red-600 mb-2 font-medium">Connection Error</p>
+                        <p className="text-sm text-gray-500 mb-4">{error}</p>
+                        <button
+                            onClick={loadPlans}
+                            className="px-6 py-2.5 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition-colors text-sm"
+                        >
+                            Retry
+                        </button>
+                    </div>
+                )}
+
                 {/* Empty State */}
-                {!loading && plans.length === 0 && (
+                {!loading && !error && plans.length === 0 && (
                     <div className="text-center py-16 border border-dashed border-gray-300 rounded-xl">
                         <svg className="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
