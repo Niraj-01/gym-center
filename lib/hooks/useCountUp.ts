@@ -5,7 +5,7 @@
  * Used for stats/counters to give a "live data" feel.
  */
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 function easeOutExpo(t: number): number {
     return t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
@@ -16,17 +16,17 @@ export function useCountUp(target: number, duration: number = 1200, delay: numbe
     const prevTarget = useRef(0);
     const frameRef = useRef<number>(0);
 
-    useEffect(() => {
+    const animateTo = useCallback((newTarget: number) => {
         const startValue = prevTarget.current;
-        prevTarget.current = target;
+        prevTarget.current = newTarget;
 
-        if (target === 0) {
-            setCurrent(0);
+        if (newTarget === 0) {
+            // Reset without animation
+            prevTarget.current = 0;
             return;
         }
 
         let startTime: number | null = null;
-        let timeoutId: ReturnType<typeof setTimeout>;
 
         const animate = (timestamp: number) => {
             if (!startTime) startTime = timestamp;
@@ -34,7 +34,7 @@ export function useCountUp(target: number, duration: number = 1200, delay: numbe
             const progress = Math.min(elapsed / duration, 1);
             const easedProgress = easeOutExpo(progress);
 
-            const value = Math.round(startValue + (target - startValue) * easedProgress);
+            const value = Math.round(startValue + (newTarget - startValue) * easedProgress);
             setCurrent(value);
 
             if (progress < 1) {
@@ -42,7 +42,7 @@ export function useCountUp(target: number, duration: number = 1200, delay: numbe
             }
         };
 
-        timeoutId = setTimeout(() => {
+        const timeoutId = setTimeout(() => {
             frameRef.current = requestAnimationFrame(animate);
         }, delay);
 
@@ -50,7 +50,13 @@ export function useCountUp(target: number, duration: number = 1200, delay: numbe
             clearTimeout(timeoutId);
             cancelAnimationFrame(frameRef.current);
         };
-    }, [target, duration, delay]);
+    }, [duration, delay]);
+
+    useEffect(() => {
+        const cleanup = animateTo(target);
+        return cleanup;
+    }, [target, animateTo]);
 
     return current;
 }
+
