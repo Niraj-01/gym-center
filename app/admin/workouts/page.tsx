@@ -34,24 +34,36 @@ function WorkoutPlansContent() {
             setError(null);
             const { data, error: queryError } = await supabase
                 .from('workout_plans')
-                .select(`
-                    *,
-                    workout_days(count)
-                `)
+                .select('*')
                 .order('created_at', { ascending: false });
 
             if (queryError) throw queryError;
 
-            const plansData: WorkoutPlan[] = (data || []).map((p: Record<string, unknown>) => ({
-                id: String(p.id),
-                name: p.name as string,
-                description: (p.description as string) || '',
-                created_by: p.created_by as string,
-                is_active: p.is_active as boolean,
-                created_at: p.created_at as string,
-                updated_at: p.updated_at as string,
-                day_count: Array.isArray(p.workout_days) ? p.workout_days.length : ((p.workout_days as { count: number })?.count || 0),
-            }));
+            // Fetch day counts separately (avoids PostgREST schema cache issues)
+            const plansData: WorkoutPlan[] = await Promise.all(
+                (data || []).map(async (p: Record<string, unknown>) => {
+                    let dayCount = 0;
+                    try {
+                        const { count } = await supabase
+                            .from('workout_days')
+                            .select('*', { count: 'exact', head: true })
+                            .eq('plan_id', p.id);
+                        dayCount = count || 0;
+                    } catch {
+                        // Ignore day count errors
+                    }
+                    return {
+                        id: String(p.id),
+                        name: p.name as string,
+                        description: (p.description as string) || '',
+                        created_by: p.created_by as string,
+                        is_active: p.is_active as boolean,
+                        created_at: p.created_at as string,
+                        updated_at: p.updated_at as string,
+                        day_count: dayCount,
+                    };
+                })
+            );
 
             setPlans(plansData);
         } catch (err: unknown) {

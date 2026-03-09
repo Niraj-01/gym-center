@@ -89,6 +89,11 @@ function MemberDashboardContent() {
     const [member, setMember] = useState<MemberData | null>(null);
     const [payments, setPayments] = useState<PaymentRecord[]>([]);
     const [loading, setLoading] = useState(true);
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     useEffect(() => {
         if (memberSession) {
@@ -164,7 +169,7 @@ function MemberDashboardContent() {
         }
     };
 
-    if (loading || !member) {
+    if (!mounted || loading || !member) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-white">
                 <div className="text-center">

@@ -9,7 +9,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
 # UPI Payment Details (NEW - REQUIRED FOR MEMBER PORTAL)
 NEXT_PUBLIC_GYM_UPI_ID=yourname@paytm
-NEXT_PUBLIC_GYM_NAME="Matoshree Fitness"
+NEXT_PUBLIC_GYM_NAME="GymCentre"
 
 # App URL (NEW - REQUIRED FOR QR CODE)
 NEXT_PUBLIC_APP_URL=http://localhost:3000
