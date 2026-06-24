@@ -112,30 +112,25 @@ export function AdminSidebar() {
     };
 
     return (
-        <aside className="w-64 bg-white border-r border-gray-200 min-h-screen sticky top-0 hidden lg:block">
+        <aside className="w-64 bg-[#FBFAF7] border-r border-[#E2D9C9]/70 min-h-screen sticky top-0 hidden lg:block">
             {/* Logo */}
-            <div className="p-4 border-b border-gray-100">
+            <div className="px-4 py-5 border-b border-[#E2D9C9]/70">
                 <motion.button
                     onClick={() => router.push('/dashboard')}
-                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200 w-full"
+                    className="flex items-center gap-2.5 p-1.5 rounded-lg hover:bg-[#F1EEE8] transition-colors duration-200 w-full"
                     style={{ background: 'transparent', border: 'none', cursor: 'pointer', outline: 'none' }}
-                    whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                 >
-                    <motion.img
-                        src="/logo.png"
-                        alt="GC"
-                        className="h-9 w-9 object-contain flex-shrink-0"
-                        animate={{ scale: [1, 1.03, 1] }}
-                        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-                    />
+                    <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#1A1A1A] text-[13px] font-bold tracking-tight text-[#F5F2ED]">
+                        GC
+                    </span>
                     <span
                         style={{
+                            fontFamily: "'Zilla Slab', serif",
                             fontSize: '20px',
-                            fontWeight: 600,
-                            color: '#000000',
-                            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-                            letterSpacing: '-0.3px'
+                            fontWeight: 700,
+                            color: '#1A1A1A',
+                            letterSpacing: '-0.01em',
                         }}
                     >
                         GymCentre
@@ -144,7 +139,7 @@ export function AdminSidebar() {
             </div>
 
             {/* Navigation */}
-            <nav className="p-4">
+            <nav className="p-3">
                 <ul className="space-y-1">
                     <AnimatePresence>
                         {navItems.map((item, index) => (
@@ -157,11 +152,11 @@ export function AdminSidebar() {
                             >
                                 <motion.button
                                     onClick={() => router.push(item.path)}
-                                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors relative ${isActive(item.path)
-                                        ? 'bg-gray-100 text-black'
-                                        : 'text-gray-600 hover:bg-gray-50 hover:text-black'
+                                    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-[10px] text-[13.5px] transition-colors relative ${isActive(item.path)
+                                        ? 'bg-[#F1EEE8] text-[#1A1A1A] font-semibold'
+                                        : 'text-[#1A1A1A]/60 hover:bg-[#F1EEE8]/60 hover:text-[#1A1A1A] font-medium'
                                         }`}
-                                    whileHover={{ x: 4, transition: { type: 'spring', stiffness: 400, damping: 20 } }}
+                                    whileHover={{ x: 3, transition: { type: 'spring', stiffness: 400, damping: 20 } }}
                                     whileTap={{ scale: 0.97 }}
                                 >
                                     {/* Animated active indicator bar */}
@@ -169,7 +164,7 @@ export function AdminSidebar() {
                                         <motion.div
                                             layoutId="sidebar-active-indicator"
                                             className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full"
-                                            style={{ background: 'rgb(var(--color-primary))' }}
+                                            style={{ background: '#2D6A4F' }}
                                             transition={{ type: 'spring', stiffness: 350, damping: 30 }}
                                         />
                                     )}

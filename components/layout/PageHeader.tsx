@@ -26,16 +26,21 @@ export function PageHeader({
 }: PageHeaderProps) {
     return (
         <motion.div
-            className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-8 pb-6 border-b border-gray-200"
+            className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 pb-6 border-b border-[#E2D9C9]/80"
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] as const }}
         >
             <div>
-                <h1 className="text-2xl font-semibold text-black animate-shimmer-text">{title}</h1>
+                <h1
+                    className="text-[#1A1A1A]"
+                    style={{ fontFamily: "'Zilla Slab', serif", fontSize: '34px', fontWeight: 700, letterSpacing: '-0.02em', lineHeight: 1.1 }}
+                >
+                    {title}
+                </h1>
                 {description && (
                     <motion.p
-                        className="text-sm text-gray-500 mt-1"
+                        className="text-sm text-[#1A1A1A]/55 mt-1.5"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.2, duration: 0.4 }}
@@ -55,7 +60,8 @@ export function PageHeader({
                     {secondaryActionLabel && onSecondaryAction && (
                         <motion.button
                             onClick={onSecondaryAction}
-                            className="px-4 py-2.5 border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors font-medium"
+                            className="px-5 py-2.5 border border-[#1A1A1A]/20 text-sm text-[#1A1A1A]/80 hover:bg-white hover:border-[#1A1A1A]/30 rounded-[10px] transition-colors font-medium"
+                            style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '12.5px', letterSpacing: '0.04em', textTransform: 'uppercase' }}
                             whileHover={{ y: -2, transition: { type: 'spring', stiffness: 400, damping: 20 } }}
                             whileTap={{ scale: 0.97 }}
                         >
@@ -65,7 +71,8 @@ export function PageHeader({
                     {actionLabel && onAction && (
                         <motion.button
                             onClick={onAction}
-                            className="px-6 py-2.5 bg-black text-white hover:bg-gray-800 rounded-lg transition-colors font-medium text-sm animate-pulse-glow"
+                            className="px-6 py-2.5 bg-[#1A1A1A] text-[#F5F2ED] hover:bg-[#2D6A4F] rounded-[10px] transition-colors"
+                            style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '12.5px', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' }}
                             whileHover={{ y: -2, transition: { type: 'spring', stiffness: 400, damping: 20 } }}
                             whileTap={{ scale: 0.95 }}
                         >

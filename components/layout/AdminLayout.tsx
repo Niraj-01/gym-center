@@ -52,26 +52,29 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     ];
 
     return (
-        <div className="min-h-screen bg-white flex">
+        <div className="min-h-screen bg-[#F5F2ED] flex">
             {/* Desktop Sidebar */}
             <AdminSidebar />
 
             {/* Mobile Header & Menu */}
-            <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-200">
+            <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-[#F5F2ED]/85 backdrop-blur-xl border-b border-[#E2D9C9]/70">
                 <div className="flex items-center justify-between px-4 py-3">
                     <motion.button
                         onClick={() => { router.push('/dashboard'); setMobileMenuOpen(false); }}
-                        className="flex items-center gap-2 p-1 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+                        className="flex items-center gap-2 p-1 rounded-lg hover:bg-[#F1EEE8] transition-colors duration-200"
                         style={{ background: 'transparent', border: 'none', cursor: 'pointer', outline: 'none' }}
                         whileTap={{ scale: 0.97 }}
                     >
-                        <img src="/logo.png" alt="GC" className="h-7 w-7 object-contain flex-shrink-0" />
+                        <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-[#1A1A1A] text-[11px] font-bold tracking-tight text-[#F5F2ED]">
+                            GC
+                        </span>
                         <span
                             style={{
-                                fontSize: '16px',
-                                fontWeight: 600,
-                                color: '#000000',
-                                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+                                fontFamily: "'Zilla Slab', serif",
+                                fontSize: '17px',
+                                fontWeight: 700,
+                                color: '#1A1A1A',
+                                letterSpacing: '-0.01em',
                             }}
                         >
                             GymCentre
@@ -79,7 +82,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     </motion.button>
                     <motion.button
                         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                        className="p-2 text-gray-600 hover:text-black"
+                        className="p-2 text-[#1A1A1A]/60 hover:text-[#1A1A1A]"
                         aria-label="Toggle menu"
                         whileTap={{ scale: 0.9, rotate: mobileMenuOpen ? -90 : 90 }}
                         transition={{ type: 'spring', stiffness: 300, damping: 20 }}
@@ -100,7 +103,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 <AnimatePresence>
                     {mobileMenuOpen && (
                         <motion.div
-                            className="bg-white/95 backdrop-blur-lg border-b border-gray-200 py-2 overflow-hidden"
+                            className="bg-[#F5F2ED]/97 backdrop-blur-lg border-b border-[#E2D9C9]/70 py-2 overflow-hidden"
                             variants={mobileMenuVariants}
                             initial="hidden"
                             animate="visible"
@@ -114,16 +117,16 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                                     initial="hidden"
                                     animate="visible"
                                     onClick={() => { router.push(item.path); setMobileMenuOpen(false); }}
-                                    className="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-gray-50 interactive-spring"
+                                    className="w-full px-4 py-3 text-left text-sm text-[#1A1A1A]/75 hover:bg-[#F1EEE8] interactive-spring"
                                     whileTap={{ scale: 0.98, x: 8 }}
                                 >
                                     {item.label}
                                 </motion.button>
                             ))}
-                            <div className="border-t border-gray-100 mt-2 pt-2">
+                            <div className="border-t border-[#E2D9C9]/70 mt-2 pt-2">
                                 <motion.button
                                     onClick={() => signOut()}
-                                    className="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-gray-50"
+                                    className="w-full px-4 py-3 text-left text-sm text-[#1A1A1A]/75 hover:bg-[#F1EEE8]"
                                     whileTap={{ scale: 0.98 }}
                                 >
                                     Sign Out
@@ -136,16 +139,16 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
             {/* Main Content */}
             <div className="flex-1 lg:ml-0">
-                {/* Desktop Header — glassmorphic */}
-                <header className="hidden lg:flex items-center justify-end px-8 py-4 border-b border-gray-200/80 bg-white/80 backdrop-blur-xl sticky top-0 z-40">
+                {/* Desktop Header */}
+                <header className="hidden lg:flex items-center justify-end px-8 py-4 border-b border-[#E2D9C9]/70 bg-[#F5F2ED]/80 backdrop-blur-xl sticky top-0 z-40">
                     <div className="flex items-center gap-4">
                         <div className="text-right">
-                            <p className="text-sm font-medium text-black">Admin</p>
-                            <p className="text-xs text-gray-500">{user?.email || 'admin@gymcentre.com'}</p>
+                            <p className="text-sm font-medium text-[#1A1A1A]" style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}>Admin</p>
+                            <p className="text-xs text-[#1A1A1A]/50" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>{user?.email || 'admin@gymcentre.com'}</p>
                         </div>
                         <motion.button
                             onClick={() => signOut()}
-                            className="px-4 py-2 border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                            className="px-4 py-2 border border-[#1A1A1A]/20 text-sm text-[#1A1A1A]/75 hover:bg-[#F1EEE8] hover:border-[#1A1A1A]/30 rounded-lg transition-colors"
                             whileHover={{ y: -1 }}
                             whileTap={{ scale: 0.97 }}
                         >

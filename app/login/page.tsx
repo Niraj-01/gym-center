@@ -47,22 +47,22 @@ export default function LoginPage() {
     // Show loading while checking auth
     if (loading) {
         return (
-            <div className="min-h-screen bg-white flex items-center justify-center">
+            <div className="min-h-screen bg-[#F5F2ED] flex items-center justify-center">
                 <div className="text-center">
-                    <div className="animate-spin rounded-full h-10 w-10 border-2 border-gray-200 border-t-black mx-auto mb-4"></div>
-                    <p className="text-sm text-gray-500">Loading...</p>
+                    <div className="animate-spin rounded-full h-10 w-10 border-2 border-[#E2D9C9] border-t-[#2D6A4F] mx-auto mb-4"></div>
+                    <p className="text-sm text-[#1A1A1A]/50">Loading...</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 relative overflow-hidden">
+        <div className="min-h-screen bg-[#F5F2ED] flex items-center justify-center p-4 relative overflow-hidden">
             {/* Ambient background */}
             <AnimatedBackground variant="mesh" />
 
             <motion.div
-                className="max-w-md w-full bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-8 relative z-10"
+                className="max-w-md w-full bg-white/95 backdrop-blur-sm rounded-2xl border border-[#E2D9C9]/70 shadow-xl shadow-[#1A1A1A]/5 p-8 relative z-10"
                 initial={{ opacity: 0, y: 24, scale: 0.97 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] as const }}
@@ -74,16 +74,17 @@ export default function LoginPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2, duration: 0.5 }}
                 >
-                    <motion.img
-                        src="/logo.png"
-                        alt="GymCentre"
-                        className="h-12 mx-auto mb-4"
+                    <motion.div
+                        className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[#1A1A1A] text-lg font-bold tracking-tight text-[#F5F2ED]"
                         animate={{ scale: [1, 1.04, 1] }}
                         transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-                    />
-                    <h1 className="text-3xl font-bold text-gray-900 animate-shimmer-text">{PRODUCT_NAME}</h1>
+                    >
+                        GC
+                    </motion.div>
+                    <h1 className="text-3xl text-[#1A1A1A]" style={{ fontFamily: "'Zilla Slab', serif", fontWeight: 700, letterSpacing: '-0.01em' }}>{PRODUCT_NAME}</h1>
                     <motion.p
-                        className="text-gray-600 mt-2"
+                        className="text-[#1A1A1A]/55 mt-2"
+                        style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '12px', letterSpacing: '0.04em' }}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.4 }}
@@ -95,12 +96,12 @@ export default function LoginPage() {
                 {/* Error Message */}
                 {error && (
                     <motion.div
-                        className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg"
+                        className="mb-4 p-3 bg-[#C0392B]/8 border border-[#C0392B]/25 rounded-[10px]"
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         transition={{ duration: 0.3 }}
                     >
-                        <p className="text-sm text-red-800">{error}</p>
+                        <p className="text-sm text-[#C0392B]">{error}</p>
                     </motion.div>
                 )}
 
@@ -120,7 +121,7 @@ export default function LoginPage() {
                     >
                         <label
                             htmlFor="email"
-                            className="block text-sm font-medium text-gray-700 mb-2"
+                            className="block text-sm font-medium text-[#1A1A1A]/75 mb-2"
                         >
                             Email Address
                         </label>
@@ -131,7 +132,7 @@ export default function LoginPage() {
                             onChange={(e) => setEmail(e.target.value)}
                             required
                             placeholder="admin@example.com"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black transition-all duration-300 focus:shadow-[0_0_0_4px_rgba(var(--color-primary),0.1)]"
+                            className="w-full px-4 py-3 bg-white border border-[#E2D9C9] rounded-[10px] focus:ring-2 focus:ring-[#2D6A4F] focus:border-transparent text-[#1A1A1A] transition-all duration-300 focus:shadow-[0_0_0_4px_rgba(45,106,79,0.12)]"
                         />
                     </motion.div>
 
@@ -143,7 +144,7 @@ export default function LoginPage() {
                     >
                         <label
                             htmlFor="password"
-                            className="block text-sm font-medium text-gray-700 mb-2"
+                            className="block text-sm font-medium text-[#1A1A1A]/75 mb-2"
                         >
                             Password
                         </label>
@@ -154,7 +155,7 @@ export default function LoginPage() {
                             onChange={(e) => setPassword(e.target.value)}
                             required
                             placeholder="Enter your password"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black transition-all duration-300 focus:shadow-[0_0_0_4px_rgba(var(--color-primary),0.1)]"
+                            className="w-full px-4 py-3 bg-white border border-[#E2D9C9] rounded-[10px] focus:ring-2 focus:ring-[#2D6A4F] focus:border-transparent text-[#1A1A1A] transition-all duration-300 focus:shadow-[0_0_0_4px_rgba(45,106,79,0.12)]"
                         />
                     </motion.div>
 
@@ -162,7 +163,8 @@ export default function LoginPage() {
                     <motion.button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full px-6 py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors animate-pulse-glow"
+                        className="w-full px-6 py-3 bg-[#1A1A1A] text-[#F5F2ED] rounded-[10px] hover:bg-[#2D6A4F] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '13px', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' }}
                         whileHover={{ y: -2, transition: { type: 'spring', stiffness: 400, damping: 20 } }}
                         whileTap={{ scale: 0.97 }}
                         initial={{ opacity: 0, y: 8 }}
@@ -182,13 +184,13 @@ export default function LoginPage() {
 
                 {/* Footer */}
                 <motion.div
-                    className="mt-6 pt-6 border-t border-gray-200 text-center"
+                    className="mt-6 pt-6 border-t border-[#E2D9C9]/70 text-center"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.6 }}
                 >
-                    <p className="text-sm text-gray-600">Admin access only</p>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <p className="text-sm text-[#1A1A1A]/65">Admin access only</p>
+                    <p className="text-sm text-[#1A1A1A]/45 mt-1">
                         Contact your gym owner for access
                     </p>
                 </motion.div>
