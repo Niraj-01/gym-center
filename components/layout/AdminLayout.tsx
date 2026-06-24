@@ -47,6 +47,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         { label: 'Dashboard', path: '/dashboard' },
         { label: 'Members', path: '/members' },
         { label: 'Add Member', path: '/members/add' },
+        { label: 'Renewals', path: '/renewals' },
         { label: 'Plans', path: '/plans' },
         { label: 'Settings', path: '/settings' },
     ];
